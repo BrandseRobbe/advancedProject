@@ -3,7 +3,7 @@ import jsonpickle
 
 class PickleRepo:
 
-    def __init__(self, filename="userdata.txt"):
+    def init(self, filename="userdata.txt"):
         self.fileName = filename
         self.fileData = self.readFile()
 
@@ -20,6 +20,6 @@ class PickleRepo:
         my_writer_obj.write(json_data)
         my_writer_obj.close()
 
-    def updfateFile(self, object):
+    def updateFile(self, object):
         self.fileData.append(object)
         self.overWriteFile(self.fileData)
