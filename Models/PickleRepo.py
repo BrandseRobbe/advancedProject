@@ -3,7 +3,7 @@ import jsonpickle
 
 class PickleRepo:
 
-    def init(self, filename="userdata.txt"):
+    def __init__(self, filename="userdata.txt"):
         self.fileName = filename
         self.fileData = self.readFile()
 
