@@ -1,10 +1,11 @@
 from Models.User import User
 from Models.PickleRepo import PickleRepo
 
-user = User("Robbe2", "azerty")
+user = User("qsldkfjqsmdlkfjsqldkmjf", "azerty")
 pickle = PickleRepo()
-print(user.username)
-pickle.writeToFile(user)
-
+# print(pickle.readFile())
+pickle.updfateFile(user)
+# pickle.overWriteFile([user])
 data = pickle.readFile()
-print(data.username)
+# data.append(user)
+print(data[1].username)

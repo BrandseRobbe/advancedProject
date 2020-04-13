@@ -1,1 +1,1 @@
-{"py/object": "Models.User.User", "username": "Robbe2", "password": "azerty"}
+[{"py/object": "Models.User.User", "username": "Robbe2", "password": "azerty"}, {"py/object": "Models.User.User", "username": "qsldkfjqsmdlkfjsqldkmjf", "password": "azerty"}]
