@@ -49,11 +49,11 @@ class Window(Frame):
             self.in_out_server.flush()
             print("waiting for answer ... ")
             answer = self.in_out_server.readline().rstrip('\n')
-            print(str(answer))
             outcome = jsonpickle.decode(answer)
+            print(type(outcome))
             print(outcome)
 
-            plt.show()
+            # plt.show()
 
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
