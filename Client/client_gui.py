@@ -2,6 +2,8 @@ import logging
 import socket
 from tkinter import *
 from tkinter import messagebox
+import jsonpickle
+import matplotlib.pyplot as plt
 
 
 class Window(Frame):
@@ -47,8 +49,11 @@ class Window(Frame):
             self.in_out_server.flush()
             print("waiting for answer ... ")
             answer = self.in_out_server.readline().rstrip('\n')
-            outcome = str(answer)
+            print(str(answer))
+            outcome = jsonpickle.decode(answer)
             print(outcome)
+
+            plt.show()
 
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)

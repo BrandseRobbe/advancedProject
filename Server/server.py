@@ -3,7 +3,7 @@ import logging
 import socket
 import threading
 
-from Server.clienthandler import ClientHandler
+from clienthandler import ClientHandler
 
 logging.basicConfig(level=logging.INFO)
 

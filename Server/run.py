@@ -1,6 +1,6 @@
 from tkinter import *
 
-from Server.server_gui import ServerWindow
+from server_gui import ServerWindow
 
 
 def callback():

@@ -4,8 +4,6 @@ import jsonpickle
 import seaborn as sns
 import pandas as pd
 
-from Server import server
-
 
 class ClientHandler(threading.Thread):
     numbers_clienthandlers = 0
@@ -34,17 +32,19 @@ class ClientHandler(threading.Thread):
         while commando != "CLOSE":
             print('commando clienthandler: %s' % commando)
             if commando == "OUTCOMETYPE":
-                df = pd.read_csv("../data/test.csv", skiprows=1)
+                df = pd.read_csv("/data/train.csv")
+                sns.countplot(x="OutcomeType", data=df)
                 OutcomeTypeVar = sns.countplot(x="OutcomeType", data=df)
-                print(OutcomeTypeVar)
                 self.in_out_clh.write(jsonpickle.encode(OutcomeTypeVar) + "\n")
                 print(jsonpickle.encode(OutcomeTypeVar))
                 self.in_out_clh.flush()
-                self.print_bericht_gui_server("Sending sum %d back" % OutcomeTypeVar)
+                message = {"type": "logdata", "data": "Sending outcometype back"}
+                self.messages_queue.put("%s" % message)
 
             commando = self.in_out_clh.readline().rstrip('\n')
 
-        self.print_bericht_gui_server("CLIENTINFO: CONNECTION CLOSED: %s" % str(self.address))
+        message = {"type": "logdata", "data": "Connection closed: %s" % str(self.address)}
+        self.messages_queue.put("%s" % message)
         self.is_connected = False
         self.socketclient.close()
 
@@ -53,10 +53,11 @@ class ClientHandler(threading.Thread):
         bericht = "ALERT"
         self.in_out_clh.write(jsonpickle.encode(bericht) + "\n")
         self.in_out_clh.flush()
-        self.print_bericht_gui_server("Sending alert %s" % bericht)
+        message = {"type": "logdata", "data": "Sending alert %s" % bericht}
+        self.messages_queue.put("%s" % message)
 
-    def print_bericht_gui_server(self, message):
-        if "CLIENTINFO: CONNECTION CLOSED: " in message:
-            self.messages_queue.put("%s" % (message))
-        else:
-            self.messages_queue.put("CLH %d:> %s" % (self.id, message))
+    # def print_bericht_gui_server(self, message):
+    #     if "CLIENTINFO: CONNECTION CLOSED: " in message:
+    #         self.messages_queue.put("%s" % (message))
+    #     else:
+    #         self.messages_queue.put("CLH %d:> %s" % (self.id, message))

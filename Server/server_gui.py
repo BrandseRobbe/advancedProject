@@ -6,7 +6,7 @@ from queue import Queue
 from threading import Thread
 from tkinter import *
 
-from Server.server import AnimalShelterServer
+from server import AnimalShelterServer
 
 
 class ServerWindow(Frame):
