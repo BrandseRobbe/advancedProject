@@ -8,6 +8,7 @@ def callback():
     gui_server.afsluiten_server()
     root.destroy()
 
+
 root = Tk()
 root.geometry("600x300")
 gui_server = ServerWindow(root)
