@@ -5,7 +5,7 @@ from queue import Queue
 from threading import Thread
 from tkinter import *
 
-from server import AnimalShelterServer
+from Server.server import AnimalShelterServer
 
 
 class ServerWindow(Frame):
@@ -67,13 +67,13 @@ class ServerWindow(Frame):
             if "CLIENTINFO" in message:
                 if "CONNECTION CLOSED" in message:
                     delmessage = message.replace("CLIENTINFO: CONNECTION CLOSED: ", "")
-                    label = "test"
+                    label = "Zarin"
                     idx = self.lstClients.get(0, END).index(label)
                     self.lstClients.delete(idx)
                     self.lstClients.delete(0, END)
                     message = self.messages_queue.get()
                 set = message.replace("CLIENTINFO:", "")
-                self.lstClients.insert(END, "test")
+                self.lstClients.insert(END, "Zarin")
                 self.messages_queue.task_done()
                 message = self.messages_queue.get()
             else:
