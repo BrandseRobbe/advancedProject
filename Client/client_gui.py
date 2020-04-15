@@ -45,7 +45,6 @@ class Window(Frame):
             print("sending ...")
             self.in_out_server.write("OUTCOMETYPE\n")
             self.in_out_server.flush()
-            print('sent outcometype')
             print("waiting for answer ... ")
             answer = self.in_out_server.readline().rstrip('\n')
             outcome = str(answer)

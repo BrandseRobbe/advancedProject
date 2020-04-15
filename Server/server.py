@@ -30,11 +30,9 @@ class AnimalShelterServer(threading.Thread):
         self.serversocket.bind((self.host, self.port))
         self.serversocket.listen(5)
         self.__is_connected = True
-        # self.print_bericht_gui_server("SERVER STARTED")
         self.print_log_info_gui("START_SERVER")
 
     def close_server_socket(self):
-        # self.print_bericht_gui_server("CLOSE_SERVER")
         self.print_log_info_gui("CLOSE_SERVER")
         self.__is_connected = False
         self.serversocket.close()
@@ -53,11 +51,9 @@ class AnimalShelterServer(threading.Thread):
                 clh = ClientHandler(clientsocket, self.messages_queue, addr)
                 clh.start()
                 clients.add(clh)
-                # self.print_bericht_gui_server("Current Thread count: %i." % threading.active_count())
                 self.print_log_info_gui("Current Thread count: %i." % threading.active_count())
 
         except Exception as ex:
-            # self.print_bericht_gui_server("Serversocket afgesloten")
             print(ex)
             logging.error("Foutmelding: %s" % ex)
             self.print_log_info_gui("Serversocket afgesloten")
@@ -81,9 +77,3 @@ class AnimalShelterServer(threading.Thread):
     def stop_gui(self):
         message = {"type": "stop_message", "data": ""}
         self.messages_queue.put("%s" % message)
-
-    # def print_bericht_gui_server(self, message):
-    #     if "CLIENTINFO" in message:
-    #         self.messages_queue.put("%s" % message)
-    #     else:
-    #         self.messages_queue.put("Server:> %s" % message)
