@@ -34,8 +34,7 @@ class ClientHandler(threading.Thread):
         while commando != "CLOSE":
             print('commando clienthandler: %s' % commando)
             if commando == "OUTCOMETYPE":
-                self.messages_queue.put("LOG:> We made it")
-                df = pd.read_csv("./data/test.csv", skiprows=1)
+                df = pd.read_csv("../data/test.csv", skiprows=1)
                 OutcomeTypeVar = sns.countplot(x="OutcomeType", data=df)
                 print(OutcomeTypeVar)
                 self.in_out_clh.write(jsonpickle.encode(OutcomeTypeVar) + "\n")
