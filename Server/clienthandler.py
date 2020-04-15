@@ -1,5 +1,4 @@
 import threading
-import pickle
 import jsonpickle
 import seaborn as sns
 import pandas as pd
@@ -11,9 +10,9 @@ class ClientHandler(threading.Thread):
     def __init__(self, socketclient, messages_queue, addr):
         threading.Thread.__init__(self)
         self.is_connected = True
-        self.socketclient = socketclient # connectie with client
+        self.socketclient = socketclient  # connectie with client
         self.address = addr
-        self.messages_queue = messages_queue #message queue -> link to gui server
+        self.messages_queue = messages_queue  # message queue -> link to gui server
         # id clienthandler
         self.id = ClientHandler.numbers_clienthandlers
         self.in_out_clh = self.socketclient.makefile(mode='rw')
@@ -32,11 +31,10 @@ class ClientHandler(threading.Thread):
         while commando != "CLOSE":
             print('commando clienthandler: %s' % commando)
             if commando == "OUTCOMETYPE":
-                df = pd.read_csv("/data/train.csv")
+                df = pd.read_csv("Data/train.csv")
                 sns.countplot(x="OutcomeType", data=df)
                 OutcomeTypeVar = sns.countplot(x="OutcomeType", data=df)
-                self.in_out_clh.write(jsonpickle.encode(OutcomeTypeVar) + "\n")
-                print(jsonpickle.encode(OutcomeTypeVar))
+                self.in_out_clh.write(jsonpickle.encode(OutcomeTypeVar, unpicklable=False) + "\n")
                 self.in_out_clh.flush()
                 message = {"type": "logdata", "data": "Sending outcometype back"}
                 self.messages_queue.put("%s" % message)
