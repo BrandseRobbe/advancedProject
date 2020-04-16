@@ -1,9 +1,9 @@
 import threading
-import pickle
 import jsonpickle
 import seaborn as sns
 import pandas as pd
-
+import matplotlib.pyplot as plt
+import json
 
 class ClientHandler(threading.Thread):
     numbers_clienthandlers = 0
@@ -32,11 +32,14 @@ class ClientHandler(threading.Thread):
         while commando != "CLOSE":
             print('commando clienthandler: %s' % commando)
             if commando == "OUTCOMETYPE":
-                df = pd.read_csv("/data/train.csv")
-                sns.countplot(x="OutcomeType", data=df)
-                OutcomeTypeVar = sns.countplot(x="OutcomeType", data=df)
-                self.in_out_clh.write(jsonpickle.encode(OutcomeTypeVar) + "\n")
-                print(jsonpickle.encode(OutcomeTypeVar))
+                df = pd.read_csv("data/train.csv")
+                outcometypes = df[['OutcomeType']]
+                list = []
+                for index, row in outcometypes.iterrows():
+                    object = {"OutcomeType": row["OutcomeType"]}
+                    list.append(object)
+                jsonOutcomeTypes = json.dumps(list)
+                self.in_out_clh.write(jsonpickle.encode(jsonOutcomeTypes) + "\n")
                 self.in_out_clh.flush()
                 message = {"type": "logdata", "data": "Sending outcometype back"}
                 self.messages_queue.put("%s" % message)

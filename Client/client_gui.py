@@ -4,6 +4,9 @@ from tkinter import *
 from tkinter import messagebox
 import jsonpickle
 import matplotlib.pyplot as plt
+import seaborn as sns
+import json
+import numpy as np
 
 
 class Window(Frame):
@@ -49,11 +52,23 @@ class Window(Frame):
             self.in_out_server.flush()
             print("waiting for answer ... ")
             answer = self.in_out_server.readline().rstrip('\n')
-            print(str(answer))
-            outcome = jsonpickle.decode(answer)
-            print(outcome)
+            print("Answer: " + str(answer))
+            outcome = json.loads(answer)
+            outcome = jsonpickle.decode(outcome)
+            print("Outcome: " + str(outcome))
+            # sns.countplot(x="OutcomeType", data=outcome)
+            outcomeList = []
+            for item in outcome:
+                outcomeList.append(item["OutcomeType"])
 
+            print("list: " + str(outcomeList))
+
+            # yPosition = np.arange(len(outcomeList))
+            # plt.bar(yPosition, outcomeList, align="center", alpha=0.5)
+            plt.hist(outcomeList)
+            plt.title("OutcomeType")
             plt.show()
+            print("Done!")
 
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
