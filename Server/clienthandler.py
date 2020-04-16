@@ -44,6 +44,31 @@ class ClientHandler(threading.Thread):
                 message = {"type": "logdata", "data": "Sending outcometype back"}
                 self.messages_queue.put("%s" % message)
 
+            if commando == "SEXUPONOUTCOME":
+                df = pd.read_csv("data/train.csv")
+                outcometypes = df[['SexuponOutcome']]
+                list = []
+                for index, row in outcometypes.iterrows():
+                    object = {"SexuponOutcome": row["SexuponOutcome"]}
+                    list.append(object)
+                jsonSexuponOutcome = json.dumps(list)
+                self.in_out_clh.write(jsonpickle.encode(jsonSexuponOutcome) + "\n")
+                self.in_out_clh.flush()
+                message = {"type": "logdata", "data": "Sending SexuponOutcome back"}
+                self.messages_queue.put("%s" % message)
+            if commando == "AGEUPONOUTCOME":
+                df = pd.read_csv("data/train.csv")
+                outcometypes = df[['AgeuponOutcome']]
+                list = []
+                for index, row in outcometypes.iterrows():
+                    object = {"AgeuponOutcome": row["AgeuponOutcome"]}
+                    list.append(object)
+                jsonAgeuponOutcome = json.dumps(list)
+                self.in_out_clh.write(jsonpickle.encode(jsonAgeuponOutcome) + "\n")
+                self.in_out_clh.flush()
+                message = {"type": "logdata", "data": "Sending AgeuponOutcome back"}
+                self.messages_queue.put("%s" % message)
+
             commando = self.in_out_clh.readline().rstrip('\n')
 
         message = {"type": "logdata", "data": "Connection closed: %s" % str(self.address)}
