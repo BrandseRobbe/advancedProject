@@ -11,9 +11,9 @@ class ClientHandler(threading.Thread):
     def __init__(self, socketclient, messages_queue, addr):
         threading.Thread.__init__(self)
         self.is_connected = True
-        self.socketclient = socketclient # connectie with client
+        self.socketclient = socketclient  # connectie with client
         self.address = addr
-        self.messages_queue = messages_queue #message queue -> link to gui server
+        self.messages_queue = messages_queue  # message queue -> link to gui server
         # id clienthandler
         self.id = ClientHandler.numbers_clienthandlers
         self.in_out_clh = self.socketclient.makefile(mode='rw')
