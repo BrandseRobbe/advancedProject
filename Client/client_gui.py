@@ -9,6 +9,7 @@ import json
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from Models.User import User
 
 class Client(Tk):
     def __init__(self, *args, **kwargs):
@@ -28,7 +29,7 @@ class Client(Tk):
 
         self.makeConnectionWithServer()
 
-        self.showFrame(Login)
+        self.showFrame(Register)
 
     def showFrame(self, frame):
         frame = self.frames[frame]
@@ -184,10 +185,10 @@ class Login(Frame):
         title = Label(card, text='SIGN IN', bg='#31ad80', fg='white')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
-        username_lbl = Label(card, text='Username', bg='#31ad80', fg='white',  anchor="w")
-        username_lbl.place(relx=0.1, rely=0.25, relwidth=0.8, relheight=0.0266)
-        self.username = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
-        self.username.place(relx=0.1, rely=0.30, relwidth=0.8, relheight=0.08)
+        email_lbl = Label(card, text='Email', bg='#31ad80', fg='white',  anchor="w")
+        email_lbl.place(relx=0.1, rely=0.25, relwidth=0.8, relheight=0.0266)
+        self.email = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
+        self.email.place(relx=0.1, rely=0.30, relwidth=0.8, relheight=0.08)
 
         password_lbl = Label(card, text='Password', bg='#31ad80', fg='white', anchor="w")
         password_lbl.place(relx=0.1, rely=0.45, relwidth=0.8, relheight=0.0266)
@@ -202,7 +203,7 @@ class Login(Frame):
         login = Button(card, text='SIGN IN', fg='white', bg='#018555', bd=0,activebackground='#016943', activeforeground='white', command=lambda: self.login())
         login.place(relx=0.1, rely=0.70, relwidth=0.8, relheight=0.08)
 
-        register = Button(card, text='Create an account', fg='white', bg='#31ad80', bd=0, command=lambda: self.goToRegister())
+        register = Button(card, text='Create an account', fg='white', bg='#31ad80', bd=0, command=lambda: self.goToRegister)
         register.place(relx=0.1, rely=0.90, relwidth=0.8, relheight=0.08)
 
     def goToRegister(self):
@@ -212,17 +213,15 @@ class Login(Frame):
     def login(self):
         try:
 
-            username = self.username.get()
+            email = self.email.get()
             password = self.password.get()
 
-            if username != '' and password != '':
-                self.controller.writer.write("SIGNIN\n")
-                self.controller.writer.write("%s\n" % username)
-                logging.info("Sending username: %s" % username)
-
-                self.controller.writer.write("%s\n" % password)
-                logging.info("Sending password: %s" % password)
-
+            if email != '' and password != '':
+                self.controller.writer.write("LOGIN\n")
+                user = User(email=email, password=password, nickname="", name="")
+                jsonuser = jsonpickle.encode(user)
+                self.controller.writer.write("%s\n" % jsonuser)
+                logging.info("Sending password: User")
                 self.controller.writer.flush()
 
                 # waiting for answer
@@ -230,7 +229,7 @@ class Login(Frame):
                 logging.info("Result server: %s" % result)
 
                 if result == 'OK':
-                    self.username.delete(0, END)
+                    self.email.delete(0, END)
                     self.password.delete(0, END)
                     self.controller.showFrame(Applicatie)
                 elif result == 'NOK':
@@ -261,35 +260,40 @@ class Register(Frame):
         title.place(relx=0.1, rely=0.05, relwidth=0.8)
 
         username_lbl = Label(card, text='Username', bg='#31ad80', fg='white', anchor="w")
-        username_lbl.place(relx=0.1, rely=0.20, relwidth=0.8, relheight=0.0266)
+        username_lbl.place(relx=0.1, rely=0.10, relwidth=0.8, relheight=0.0266)
         self.username = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
-        self.username.place(relx=0.1, rely=0.25, relwidth=0.8, relheight=0.08)
+        self.username.place(relx=0.1, rely=0.15, relwidth=0.8, relheight=0.08)
 
         email_lbl = Label(card, text='Email', bg='#31ad80', fg='white', anchor="w")
-        email_lbl.place(relx=0.1, rely=0.40, relwidth=0.8, relheight=0.0266)
+        email_lbl.place(relx=0.1, rely=0.30, relwidth=0.8, relheight=0.0266)
         self.email = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
-        self.email.place(relx=0.1, rely=0.45, relwidth=0.8, relheight=0.08)
+        self.email.place(relx=0.1, rely=0.35, relwidth=0.8, relheight=0.08)
+
+        nickname_lbl = Label(card, text='Nickname', bg='#31ad80', fg='white', anchor="w")
+        nickname_lbl.place(relx=0.1, rely=0.50, relwidth=0.8, relheight=0.0266)
+        self.nickname = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
+        self.nickname.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.08)
 
         password_lbl = Label(card, text='Password', bg='#31ad80', fg='white', anchor="w")
-        password_lbl.place(relx=0.1, rely=0.60, relwidth=0.3, relheight=0.0266)
+        password_lbl.place(relx=0.1, rely=0.70, relwidth=0.3, relheight=0.0266)
         self.password = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3',show="*")
-        self.password.place(relx=0.1, rely=0.65, relwidth=0.375, relheight=0.08)
+        self.password.place(relx=0.1, rely=0.75, relwidth=0.375, relheight=0.08)
 
         repeatPassword_lbl = Label(card, text='Repeat Password', bg='#31ad80', fg='white', anchor="w")
-        repeatPassword_lbl.place(relx=0.525, rely=0.60, relwidth=0.3, relheight=0.0266)
+        repeatPassword_lbl.place(relx=0.525, rely=0.70, relwidth=0.3, relheight=0.0266)
         self.repeatPassword = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3',show="*")
-        self.repeatPassword.place(relx=0.525, rely=0.65, relwidth=0.375, relheight=0.08)
+        self.repeatPassword.place(relx=0.525, rely=0.75, relwidth=0.375, relheight=0.08)
 
         self.textError = StringVar()
         self.textError.set("")
         error = Label(card, textvariable=self.textError, bg='#31ad80', fg='white')
-        error.place(relx=0.1, rely=0.75, relwidth=0.8, relheight=0.1)
+        error.place(relx=0.1, rely=0.85, relwidth=0.8, relheight=0.1)
 
         login = Button(card, text='Login', fg='white', bg='#31ad80', bd=0, command=lambda:self.goToLogin())
-        login.place(relx=0.1, rely=0.85, relwidth=0.375, relheight=0.08)
+        login.place(relx=0.1, rely=0.90, relwidth=0.375, relheight=0.08)
 
         register = Button(card, text='SIGN UP', fg='white', bg='#018555', bd=0, activebackground='#016943', activeforeground='white', command=lambda:self.register())
-        register.place(relx=0.525, rely=0.85, relwidth=0.375, relheight=0.08)
+        register.place(relx=0.525, rely=0.90, relwidth=0.375, relheight=0.08)
 
     def goToLogin(self):
         self.textError.set("")
@@ -301,23 +305,15 @@ class Register(Frame):
             password = self.password.get()
             repeatpassword = self.repeatPassword.get()
             email = self.email.get()
+            nickname = self.nickname.get()
 
-            if username != '' and password != '' and repeatpassword != '' and email != '':
+            if username != '' and password != '' and repeatpassword != '' and email != '' and nickname !='':
                 if password == repeatpassword:
 
-                    self.controller.writer.write("SIGNUP\n")
-                    self.controller.writer.write("%s\n" % username)
-                    logging.info("Sending username: %s" % username)
-
-                    self.controller.writer.write("%s\n" % password)
-                    logging.info("Sending password: %s" % password)
-
-                    self.controller.writer.write("%s\n" % repeatpassword)
-                    logging.info("Sending repeat password: %s" % repeatpassword)
-
-                    self.controller.writer.write("%s\n" % email)
-                    logging.info("Sending email: %s" % email)
-
+                    self.controller.writer.write("REGISTER\n")
+                    user = User(email=email, password=password, nickname=nickname, name=username)
+                    jsonuser = jsonpickle.encode(user)
+                    self.controller.writer.write("%s\n" % jsonuser)
                     self.controller.writer.flush()
 
                     # waiting for answer
