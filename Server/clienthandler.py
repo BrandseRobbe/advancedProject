@@ -37,6 +37,8 @@ class ClientHandler(threading.Thread):
             messageobj = json.loads(jsonstring)
             messagetype = messageobj["type"]
             messagevalue = messageobj["value"]
+            print("type: %s" % messagetype)
+            print("value: %s" % messagevalue)
             print('received %s' % commando)
 
             if messagetype == "OUTCOMETYPE":
@@ -77,9 +79,19 @@ class ClientHandler(threading.Thread):
                 message = {"type": "logdata", "data": "Sending AgeuponOutcome back"}
                 self.messages_queue.put("%s" % message)
 
-            elif messagetype == "REGISTER":
-                userdata = self.in_out_clh.readline().rstrip('\n')
-                self.user_storage.updateFile(userdata)
+            elif messagetype == "REGISTER_ATTEMPT":
+                try:
+                    self.user_storage.updateFile(messagevalue)
+                    response = {"type": "REGISTER_RESPONSE", "value": True}
+                    self.in_out_clh.write("%s \n" % json.dumps(response))
+                    self.in_out_clh.flush()
+                    print("register succesfull")
+                except Exception as exc:
+                    print(exc)
+                    response = {"type": "REGISTER_RESPONSE", "value": False}
+                    self.in_out_clh.write("%s \n" % json.dumps(response))
+                    self.in_out_clh.flush()
+                    print("register not succesfull")
 
             elif messagetype == "LOGIN":
                 allusers = self.user_storage.fileData

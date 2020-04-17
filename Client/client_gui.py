@@ -58,8 +58,8 @@ class Client(Tk):
         print("starting response loop")
         loop = True
         while loop:
-            print("waiting for message ...")
             jsonstring = self.in_out_server.readline().rstrip('\n')
+            print("waiting for message ...")
             messageobj = json.loads(jsonstring)
             messagetype = messageobj["type"]
             messagevalue = messageobj["value"]
@@ -73,11 +73,14 @@ class Client(Tk):
 
     def handleRegister(self, allowed):
         if allowed:
-            # volgende frame
-            pass
+            print("register succesfull")
+            self.showFrame(Applicatie)
+            # self.textError.set("")
         else:
-            # showregistererror()
-            pass
+            self.textError.set("Register failed")
+            print("register not gud")
+            raise EXCEPTION
+
 
     def handleLogin(self, allowed):
         if allowed:
@@ -112,14 +115,14 @@ class Applicatie(Frame):
 
         self.pack(fill=BOTH, expand=1)
 
-        self.buttonCalculate = Button(self, text="Get outcome", command=self.GetOutcome)
-        self.buttonCalculate.place(relx=0.05, rely=0.05, relheight=0.05, relwidth=0.1875)
-        self.buttonCalculate = Button(self, text="Get Sex", command=self.GetSexuponOutcome)
-        self.buttonCalculate.place(relx=0.2875, rely=0.05, relheight=0.05, relwidth=0.1875)
-        self.buttonCalculate = Button(self, text="Get Age", command=self.GetAgeuponOutcome)
-        self.buttonCalculate.place(relx=0.525, rely=0.05, relheight=0.05, relwidth=0.1875)
-        self.buttonCalculate = Button(self, text="Get ...", command=self.GetAgeuponOutcome)
-        self.buttonCalculate.place(relx=0.7625, rely=0.05, relheight=0.05, relwidth=0.1875)
+        # self.buttonCalculate = Button(self, text="Get outcome", command=self.GetOutcome)
+        # self.buttonCalculate.place(relx=0.05, rely=0.05, relheight=0.05, relwidth=0.1875)
+        # self.buttonCalculate = Button(self, text="Get Sex", command=self.GetSexuponOutcome)
+        # self.buttonCalculate.place(relx=0.2875, rely=0.05, relheight=0.05, relwidth=0.1875)
+        # self.buttonCalculate = Button(self, text="Get Age", command=self.GetAgeuponOutcome)
+        # self.buttonCalculate.place(relx=0.525, rely=0.05, relheight=0.05, relwidth=0.1875)
+        # self.buttonCalculate = Button(self, text="Get ...", command=self.GetAgeuponOutcome)
+        # self.buttonCalculate.place(relx=0.7625, rely=0.05, relheight=0.05, relwidth=0.1875)
 
     def ProcessData(self, input, order):
         breed = json.loads(input)
@@ -152,49 +155,49 @@ class Applicatie(Frame):
             logging.error("Foutmelding: %s" % ex)
             messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
 
-    def GetSexuponOutcome(self):
-        try:
-            print("sending ...")
-            self.controller.in_out_server.write("SEXUPONOUTCOME\n")
-            self.controller.in_out_server.flush()
-            print("waiting for answer ... ")
-            answer = self.controller.in_out_server.readline().rstrip('\n')
-            SexuponOutcomeList = self.ProcessData(answer, "SexuponOutcome")
+    # def GetSexuponOutcome(self):
+    #     try:
+    #         print("sending ...")
+    #         self.controller.in_out_server.write("SEXUPONOUTCOME\n")
+    #         self.controller.in_out_server.flush()
+    #         print("waiting for answer ... ")
+    #         answer = self.controller.in_out_server.readline().rstrip('\n')
+    #         SexuponOutcomeList = self.ProcessData(answer, "SexuponOutcome")
+    #
+    #         figureSexuponOutcome = plt.figure(figsize=(6, 6))
+    #         plt.title("Sex")
+    #         figureSexuponOutcome.autofmt_xdate(rotation=90)
+    #         plt.gcf().canvas.draw()
+    #         histogram = plt.hist(SexuponOutcomeList)
+    #         histogram = FigureCanvasTkAgg(figureSexuponOutcome, self)
+    #         histogram.get_tk_widget().place(relx=0.2675, rely=0.15, relheight=0.80, relwidth=0.2275)
+    #         print("Done!")
+    #
+    #     except Exception as ex:
+    #         logging.error("Foutmelding: %s" % ex)
+    #         messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
 
-            figureSexuponOutcome = plt.figure(figsize=(6, 6))
-            plt.title("Sex")
-            figureSexuponOutcome.autofmt_xdate(rotation=90)
-            plt.gcf().canvas.draw()
-            histogram = plt.hist(SexuponOutcomeList)
-            histogram = FigureCanvasTkAgg(figureSexuponOutcome, self)
-            histogram.get_tk_widget().place(relx=0.2675, rely=0.15, relheight=0.80, relwidth=0.2275)
-            print("Done!")
-
-        except Exception as ex:
-            logging.error("Foutmelding: %s" % ex)
-            messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
-
-    def GetAgeuponOutcome(self):
-        try:
-            print("sending ...")
-            self.controller.in_out_server.write("AGEUPONOUTCOME\n")
-            self.controller.in_out_server.flush()
-            print("waiting for answer ... ")
-            answer = self.controller.in_out_server.readline().rstrip('\n')
-            AgeuponOutcomeList = self.ProcessData(answer, "AgeuponOutcome")
-
-            figureAgeuponOutcome = plt.figure(figsize=(6, 6))
-            plt.title("Age")
-            figureAgeuponOutcome.autofmt_xdate(rotation=90)
-            plt.gcf().canvas.draw()
-            histogram = plt.hist(AgeuponOutcomeList)
-            histogram = FigureCanvasTkAgg(figureAgeuponOutcome, self)
-            histogram.get_tk_widget().place(relx=0.505, rely=0.15, relheight=0.80, relwidth=0.2275)
-            print("Done!")
-
-        except Exception as ex:
-            logging.error("Foutmelding: %s" % ex)
-            messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
+    # def GetAgeuponOutcome(self):
+    #     try:
+    #         print("sending ...")
+    #         self.controller.in_out_server.write("AGEUPONOUTCOME\n")
+    #         self.controller.in_out_server.flush()
+    #         print("waiting for answer ... ")
+    #         answer = self.controller.in_out_server.readline().rstrip('\n')
+    #         AgeuponOutcomeList = self.ProcessData(answer, "AgeuponOutcome")
+    #
+    #         figureAgeuponOutcome = plt.figure(figsize=(6, 6))
+    #         plt.title("Age")
+    #         figureAgeuponOutcome.autofmt_xdate(rotation=90)
+    #         plt.gcf().canvas.draw()
+    #         histogram = plt.hist(AgeuponOutcomeList)
+    #         histogram = FigureCanvasTkAgg(figureAgeuponOutcome, self)
+    #         histogram.get_tk_widget().place(relx=0.505, rely=0.15, relheight=0.80, relwidth=0.2275)
+    #         print("Done!")
+    #
+    #     except Exception as ex:
+    #         logging.error("Foutmelding: %s" % ex)
+    #         messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
 
     def close_connection(self):
         try:
@@ -248,7 +251,6 @@ class Login(Frame):
 
     def login(self):
         try:
-
             email = self.email.get()
             password = self.password.get()
 
@@ -263,19 +265,19 @@ class Login(Frame):
                 print(json.dumps(loginDict))
                 self.controller.in_out_server.flush()
 
-                # waiting for answer
-                result = self.controller.in_out_server.readline().rstrip('\n')
-                logging.info("Result server: %s" % result)
-
-                if result == 'OK':
-                    self.email.delete(0, END)
-                    self.password.delete(0, END)
-                    self.controller.showFrame(Applicatie)
-                elif result == 'NOK':
-                    pass
-                    # Error handeling
-                else:
-                    raise Exception
+                # # waiting for answer
+                # result = self.controller.in_out_server.readline().rstrip('\n')
+                # logging.info("Result server: %s" % result)
+                #
+                # if result == 'OK':
+                #     self.email.delete(0, END)
+                #     self.password.delete(0, END)
+                #     self.controller.showFrame(Applicatie)
+                # elif result == 'NOK':
+                #     pass
+                #     # Error handeling
+                # else:
+                #     raise Exception
             else:
                 self.textError.set("Please fill in all fields")
 
@@ -354,22 +356,11 @@ class Register(Frame):
                     registerDict = {}
                     user = User(email=email, password=password, nickname=nickname, name=username)
                     jsonuser = jsonpickle.encode(user)
-                    registerDict["type"] = "REGISTER_RESPONSE"
+                    registerDict["type"] = "REGISTER_ATTEMPT"
                     registerDict["value"] = jsonuser
                     self.controller.in_out_server.write("%s \n" % json.dumps(registerDict))
                     self.controller.in_out_server.flush()
 
-                    # waiting for answer
-                    result = self.controller.in_out_server.readline().rstrip('\n')
-                    logging.info("Result server: %s" % result)
-
-                    if result == 'OK':
-                        self.controller.showFrame(Applicatie)
-                        self.textError.set("")
-                    elif result == 'NOK':
-                        # Error handeling
-                        result = self.controller.in_out_server.readline().rstrip('\n')
-                        self.textError.set(result)
                 else:
                     # Error handeling !!
                     self.textError.set("Passwords aren't the same")
