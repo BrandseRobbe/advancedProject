@@ -67,7 +67,7 @@ class Client(Tk):
             if messagetype == "REGISTER_RESPONSE":
                 self.handleRegister(messagevalue)
             elif messagetype == "LOGIN_RESPONSE":
-                self.handlelogin(messagevalue)
+                self.handleLogin(messagevalue)
             elif messagetype == "ALERT":
                 self.handleAlert(messagevalue)
 
@@ -77,18 +77,17 @@ class Client(Tk):
             self.showFrame(Applicatie)
             # self.textError.set("")
         else:
-            self.textError.set("Register failed")
+            # self.textError.set("Register failed")
             print("register not gud")
             raise EXCEPTION
 
-
     def handleLogin(self, allowed):
         if allowed:
-            # volgende frame
-            pass
+            self.showFrame(Applicatie)
         else:
-            # showregistererror()
-            pass
+            # self.textError.set("Register failed")
+            print("register not gud")
+            raise EXCEPTION
 
     def handleAlert(self, message):
         pass
@@ -253,31 +252,21 @@ class Login(Frame):
         try:
             email = self.email.get()
             password = self.password.get()
-
+            print("__ %s __"%password)
             if email != '' and password != '':
                 loginDict = {}
                 user = User(email=email, password=password, nickname="", name="")
+                print(user.password)
+                print()
+                print()
+                print()
+                print()
                 jsonuser = jsonpickle.encode(user)
-                loginDict["type"] = "LOGIN_RESPONSE"
+                loginDict["type"] = "LOGIN_ATTEMPT"
                 loginDict["value"] = jsonuser
                 self.controller.in_out_server.write("%s \n" % json.dumps(loginDict))
-                logging.info("Sending password: User")
-                print(json.dumps(loginDict))
                 self.controller.in_out_server.flush()
-
-                # # waiting for answer
-                # result = self.controller.in_out_server.readline().rstrip('\n')
-                # logging.info("Result server: %s" % result)
-                #
-                # if result == 'OK':
-                #     self.email.delete(0, END)
-                #     self.password.delete(0, END)
-                #     self.controller.showFrame(Applicatie)
-                # elif result == 'NOK':
-                #     pass
-                #     # Error handeling
-                # else:
-                #     raise Exception
+                print(json.dumps(loginDict))
             else:
                 self.textError.set("Please fill in all fields")
 
