@@ -30,7 +30,6 @@ class ClientHandler(threading.Thread):
         self.messages_queue.put("%s" % message)
         print("user just logged in, waiting for commands")
 
-        commando = self.in_out_clh.readline().rstrip('\n')
         loop = True
         while loop:
             jsonstring = self.in_out_clh.readline().rstrip('\n')
@@ -39,7 +38,6 @@ class ClientHandler(threading.Thread):
             messagevalue = messageobj["value"]
             print("type: %s" % messagetype)
             print("value: %s" % messagevalue)
-            print('received %s' % commando)
 
             if messagetype == "OUTCOMETYPE":
                 df = pd.read_csv("data/train.csv")
@@ -93,19 +91,22 @@ class ClientHandler(threading.Thread):
                     self.in_out_clh.flush()
                     print("register not succesfull")
 
-            elif messagetype == "LOGIN":
+            elif messagetype == "LOGIN_ATTEMPT":
                 allusers = self.user_storage.fileData
-                userdata = self.in_out_clh.readline().rstrip('\n')
+                client = jsonpickle.decode(messagevalue)
                 validuser = False
                 for user in allusers:
-                    if user.email == userdata.email and user.password == userdata.email:
+                    print(user)
+                    user = jsonpickle.decode(user)
+                    print("%s == %s and %s == %s" % (user.email, client.email, user.password, client.password))
+                    if user.email == client.email and user.password == client.password:
                         validuser = True
+                        print('login succesufull')
                         break
-                object = {"loginresonse": validuser}
-                self.in_out_clh.write(jsonpickle.encode(object) + "\n")
+                response = {"type": "LOGIN_RESPONSE", "value": validuser}
+                self.in_out_clh.write("%s \n" % json.dumps(response))
                 self.in_out_clh.flush()
-
-            commando = self.in_out_clh.readline().rstrip('\n')
+                print("login: %s" % validuser)
 
         message = {"type": "logdata", "data": "Connection closed: %s" % str(self.address)}
         self.messages_queue.put("%s" % message)

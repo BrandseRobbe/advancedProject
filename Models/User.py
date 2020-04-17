@@ -1,3 +1,5 @@
+import hashlib
+import os
 import re
 
 
@@ -22,7 +24,8 @@ class User:
 
     @password.setter
     def password(self, password):
-        self.__password = hash(password)
+        # self.__password = hash(password)
+        self.__password = hashlib.sha256(password.encode()).hexdigest()
 
     @property
     def email(self):
