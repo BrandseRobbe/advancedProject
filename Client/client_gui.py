@@ -23,7 +23,7 @@ class Client(Tk):
         pages = [Login, Register, Applicatie]
 
         for f in pages:
-            frame = f(self, container)
+            frame = f(container, self)
             self.frames[f] = frame
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -60,8 +60,8 @@ class Client(Tk):
 
     # --- Closing window ---
     def __del__(self):
-        self.writer.write("CLOSE\n")
-        self.writer.flush()
+        self.in_out_server.write("CLOSE\n")
+        self.in_out_server.flush()
         self.close_connection()
 
 
@@ -69,7 +69,7 @@ class Applicatie(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-
+        #controller = self van client
     def init_window(self):
         self.master.title("AnimalShelter")
         self.pack(fill=BOTH, expand=1)
@@ -97,12 +97,13 @@ class Applicatie(Frame):
     def GetOutcome(self):
         try:
             print("sending ...")
-            self.in_out_server.write("OUTCOMETYPE\n")
-            self.in_out_server.flush()
+            self.controller.in_out_server.write("OUTCOMETYPE\n")
+            self.controller.in_out_server.flush()
             print("waiting for answer ... ")
-            answer = self.in_out_server.readline().rstrip('\n')
+            answer = self.controller.readline().rstrip('\n')
             outcomeList = self.ProcessData(answer, "OutcomeType")
             f = Figure(figsize=(6, 6), dpi=100)
+            f.autofmt_xdate()
             canvas = FigureCanvasTkAgg(f, self)
             canvas.get_tk_widget().place(relx = 0.03, rely = 0.15, relheight=0.80, relwidth = 0.2275 )
             p = f.gca()
@@ -118,13 +119,14 @@ class Applicatie(Frame):
     def GetSexuponOutcome(self):
         try:
             print("sending ...")
-            self.in_out_server.write("SEXUPONOUTCOME\n")
-            self.in_out_server.flush()
+            self.controller.in_out_server.write("SEXUPONOUTCOME\n")
+            self.controller.in_out_server.flush()
             print("waiting for answer ... ")
-            answer = self.in_out_server.readline().rstrip('\n')
+            answer = self.controller.readline().rstrip('\n')
             SexuponOutcomeList = self.ProcessData(answer, "SexuponOutcome")
 
             f = Figure(figsize=(6, 6), dpi=100)
+            f.autofmt_xdate()
             canvas = FigureCanvasTkAgg(f, self)
             canvas.get_tk_widget().place(relx = 0.2675, rely = 0.15, relheight= 0.80, relwidth = 0.2275)
             p = f.gca()
@@ -139,12 +141,13 @@ class Applicatie(Frame):
     def GetAgeuponOutcome(self):
         try:
             print("sending ...")
-            self.in_out_server.write("AGEUPONOUTCOME\n")
-            self.in_out_server.flush()
+            self.controller.in_out_server.write("AGEUPONOUTCOME\n")
+            self.controller.in_out_server.flush()
             print("waiting for answer ... ")
-            answer = self.in_out_server.readline().rstrip('\n')
+            answer = self.controller.readline().rstrip('\n')
             AgeuponOutcomeList = self.ProcessData(answer, "AgeuponOutcome")
             f = Figure(figsize=(6, 6), dpi=100)
+            f.autofmt_xdate()
             canvas = FigureCanvasTkAgg(f, self)
             canvas.get_tk_widget().place(relx=0.505, rely=0.15, relheight=0.80, relwidth=0.2275)
             p = f.gca()
@@ -162,9 +165,9 @@ class Applicatie(Frame):
     def close_connection(self):
         try:
             logging.info("Close connection with server...")
-            self.in_out_server.write("%s\n" % "CLOSE")
-            self.in_out_server.flush()
-            self.socket_to_server.close()
+            self.controller.in_out_server.write("%s\n" % "CLOSE")
+            self.controller.in_out_server.flush()
+            self.controller.socket_to_server.close()
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
             messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
@@ -192,7 +195,7 @@ class Login(Frame):
 
         password_lbl = Label(card, text='Password', bg='#31ad80', fg='white', anchor="w")
         password_lbl.place(relx=0.1, rely=0.45, relwidth=0.8, relheight=0.0266)
-        self.password = Entry(card, text='Login', fg='#6bdbb2', bg='#D4D4D4', bd=0, selectbackground='#6c64d3',show="*")
+        self.password = Entry(card, text='Login', fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3',show="*")
         self.password.place(relx=0.1, rely=0.50, relwidth=0.8, relheight=0.08)
 
         self.textError = StringVar()
@@ -217,15 +220,15 @@ class Login(Frame):
             password = self.password.get()
 
             if email != '' and password != '':
-                self.controller.writer.write("LOGIN\n")
+                self.controller.in_out_server.write("LOGIN\n")
                 user = User(email=email, password=password, nickname="", name="")
                 jsonuser = jsonpickle.encode(user)
-                self.controller.writer.write("%s\n" % jsonuser)
+                self.controller.in_out_server.write("%s\n" % jsonuser)
                 logging.info("Sending password: User")
-                self.controller.writer.flush()
+                self.controller.in_out_server.flush()
 
                 # waiting for answer
-                result = self.controller.writer.readline().rstrip('\n')
+                result = self.controller.readline().rstrip('\n')
                 logging.info("Result server: %s" % result)
 
                 if result == 'OK':
@@ -310,14 +313,14 @@ class Register(Frame):
             if username != '' and password != '' and repeatpassword != '' and email != '' and nickname !='':
                 if password == repeatpassword:
 
-                    self.controller.writer.write("REGISTER\n")
+                    self.controller.in_out_server.write("REGISTER\n")
                     user = User(email=email, password=password, nickname=nickname, name=username)
                     jsonuser = jsonpickle.encode(user)
-                    self.controller.writer.write("%s\n" % jsonuser)
-                    self.controller.writer.flush()
+                    self.controller.in_out_server.write("%s\n" % jsonuser)
+                    self.controller.in_out_server.flush()
 
                     # waiting for answer
-                    result = self.controller.writer.readline().rstrip('\n')
+                    result = self.controller.readline().rstrip('\n')
                     logging.info("Result server: %s" % result)
 
                     if result == 'OK':
@@ -325,7 +328,7 @@ class Register(Frame):
                         self.textError.set("")
                     elif result == 'NOK':
                         # Error handeling
-                        result = self.controller.writer.readline().rstrip('\n')
+                        result = self.controller.readline().rstrip('\n')
                         self.textError.set(result)
                 else:
                     # Error handeling !!

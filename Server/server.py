@@ -9,7 +9,6 @@ logging.basicConfig(level=logging.INFO)
 
 clients = set()
 
-
 class AnimalShelterServer(threading.Thread):
     def __init__(self, host, port, messages_queue):
         threading.Thread.__init__(self)
