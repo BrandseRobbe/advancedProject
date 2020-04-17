@@ -29,7 +29,7 @@ class Client(Tk):
 
         self.makeConnectionWithServer()
 
-        self.showFrame(Register)
+        self.showFrame(Applicatie)
 
     def showFrame(self, frame):
         frame = self.frames[frame]
@@ -70,8 +70,7 @@ class Applicatie(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         #controller = self van client
-    def init_window(self):
-        self.master.title("AnimalShelter")
+
         self.pack(fill=BOTH, expand=1)
 
         self.buttonCalculate = Button(self, text="Get outcome", command=self.GetOutcome)
@@ -100,16 +99,16 @@ class Applicatie(Frame):
             self.controller.in_out_server.write("OUTCOMETYPE\n")
             self.controller.in_out_server.flush()
             print("waiting for answer ... ")
-            answer = self.controller.readline().rstrip('\n')
+            answer = self.controller.in_out_server.readline().rstrip('\n')
             outcomeList = self.ProcessData(answer, "OutcomeType")
-            f = Figure(figsize=(6, 6), dpi=100)
-            f.autofmt_xdate()
-            canvas = FigureCanvasTkAgg(f, self)
-            canvas.get_tk_widget().place(relx = 0.03, rely = 0.15, relheight=0.80, relwidth = 0.2275 )
-            p = f.gca()
-            p.hist(outcomeList)
-            p.title("Outcome")
-            canvas.draw()
+
+            figureOutcome = plt.figure(figsize=(6,6))
+            plt.title("Outcome")
+            figureOutcome.autofmt_xdate(rotation=90)
+            plt.gcf().canvas.draw()
+            histogram = plt.hist(outcomeList)
+            histogram = FigureCanvasTkAgg(figureOutcome, self)
+            histogram.get_tk_widget().place(relx = 0.03, rely = 0.15, relheight=0.80, relwidth = 0.2275 )
             print("Done!")
 
         except Exception as ex:
@@ -122,16 +121,16 @@ class Applicatie(Frame):
             self.controller.in_out_server.write("SEXUPONOUTCOME\n")
             self.controller.in_out_server.flush()
             print("waiting for answer ... ")
-            answer = self.controller.readline().rstrip('\n')
+            answer = self.controller.in_out_server.readline().rstrip('\n')
             SexuponOutcomeList = self.ProcessData(answer, "SexuponOutcome")
 
-            f = Figure(figsize=(6, 6), dpi=100)
-            f.autofmt_xdate()
-            canvas = FigureCanvasTkAgg(f, self)
-            canvas.get_tk_widget().place(relx = 0.2675, rely = 0.15, relheight= 0.80, relwidth = 0.2275)
-            p = f.gca()
-            p.hist(SexuponOutcomeList)
-            canvas.draw()
+            figureSexuponOutcome = plt.figure(figsize=(6, 6))
+            plt.title("Sex")
+            figureSexuponOutcome.autofmt_xdate(rotation=90)
+            plt.gcf().canvas.draw()
+            histogram = plt.hist(SexuponOutcomeList)
+            histogram = FigureCanvasTkAgg(figureSexuponOutcome, self)
+            histogram.get_tk_widget().place(relx = 0.2675, rely = 0.15, relheight= 0.80, relwidth = 0.2275)
             print("Done!")
 
         except Exception as ex:
@@ -144,16 +143,16 @@ class Applicatie(Frame):
             self.controller.in_out_server.write("AGEUPONOUTCOME\n")
             self.controller.in_out_server.flush()
             print("waiting for answer ... ")
-            answer = self.controller.readline().rstrip('\n')
+            answer = self.controller.in_out_server.readline().rstrip('\n')
             AgeuponOutcomeList = self.ProcessData(answer, "AgeuponOutcome")
-            f = Figure(figsize=(6, 6), dpi=100)
-            f.autofmt_xdate()
-            canvas = FigureCanvasTkAgg(f, self)
-            canvas.get_tk_widget().place(relx=0.505, rely=0.15, relheight=0.80, relwidth=0.2275)
-            p = f.gca()
-            p.hist(AgeuponOutcomeList)
-            plt.xticks(rotation='vertical')
-            canvas.draw()
+
+            figureAgeuponOutcome = plt.figure(figsize=(6, 6))
+            plt.title("Age")
+            figureAgeuponOutcome.autofmt_xdate(rotation=90)
+            plt.gcf().canvas.draw()
+            histogram = plt.hist(AgeuponOutcomeList)
+            histogram = FigureCanvasTkAgg(figureAgeuponOutcome, self)
+            histogram.get_tk_widget().place(relx=0.505, rely=0.15, relheight=0.80, relwidth=0.2275)
             print("Done!")
 
         except Exception as ex:
@@ -228,7 +227,7 @@ class Login(Frame):
                 self.controller.in_out_server.flush()
 
                 # waiting for answer
-                result = self.controller.readline().rstrip('\n')
+                result = self.controller.in_out_server.readline().rstrip('\n')
                 logging.info("Result server: %s" % result)
 
                 if result == 'OK':
@@ -320,7 +319,7 @@ class Register(Frame):
                     self.controller.in_out_server.flush()
 
                     # waiting for answer
-                    result = self.controller.readline().rstrip('\n')
+                    result = self.controller.in_out_server.readline().rstrip('\n')
                     logging.info("Result server: %s" % result)
 
                     if result == 'OK':
@@ -328,7 +327,7 @@ class Register(Frame):
                         self.textError.set("")
                     elif result == 'NOK':
                         # Error handeling
-                        result = self.controller.readline().rstrip('\n')
+                        result = self.controller.in_out_server.readline().rstrip('\n')
                         self.textError.set(result)
                 else:
                     # Error handeling !!
