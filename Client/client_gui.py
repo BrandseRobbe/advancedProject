@@ -29,7 +29,7 @@ class Client(Tk):
 
         self.makeConnectionWithServer()
 
-        self.showFrame(Applicatie)
+        self.showFrame(Login)
 
     def showFrame(self, frame):
         frame = self.frames[frame]
@@ -205,7 +205,7 @@ class Login(Frame):
         login = Button(card, text='SIGN IN', fg='white', bg='#018555', bd=0,activebackground='#016943', activeforeground='white', command=lambda: self.login())
         login.place(relx=0.1, rely=0.70, relwidth=0.8, relheight=0.08)
 
-        register = Button(card, text='Create an account', fg='white', bg='#31ad80', bd=0, command=lambda: self.goToRegister)
+        register = Button(card, text='Create an account', fg='white', bg='#31ad80', bd=0, command=lambda: self.goToRegister())
         register.place(relx=0.1, rely=0.90, relwidth=0.8, relheight=0.08)
 
     def goToRegister(self):
