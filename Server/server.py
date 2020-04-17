@@ -3,6 +3,7 @@ import logging
 import socket
 import threading
 
+from Models.PickleRepo import PickleRepo
 from clienthandler import ClientHandler
 
 logging.basicConfig(level=logging.INFO)
@@ -15,8 +16,8 @@ class AnimalShelterServer(threading.Thread):
         self.__is_connected = False
         self.host = host
         self.port = port
-        # self.init_server(host, port)                #server niet onmiddellijk initialiseren (via GUI)
         self.messages_queue = messages_queue
+        self.user_storage = PickleRepo()
 
     @property
     def is_connected(self):

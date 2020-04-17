@@ -5,10 +5,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import json
 
+
 class ClientHandler(threading.Thread):
     numbers_clienthandlers = 0
 
-    def __init__(self, socketclient, messages_queue, addr):
+    def __init__(self, socketclient, messages_queue, addr, user_storage):
         threading.Thread.__init__(self)
         self.is_connected = True
         self.socketclient = socketclient  # connectie with client
@@ -19,19 +20,26 @@ class ClientHandler(threading.Thread):
         self.in_out_clh = self.socketclient.makefile(mode='rw')
         ClientHandler.numbers_clienthandlers += 1
 
+        self.user_storage = user_storage
+
         self.run()
 
     def run(self):
         # server.print_log_info_gui("User has logged in")
         message = {"type": "logdata", "data": "User has logged in"}
         self.messages_queue.put("%s" % message)
-
         print("user just logged in, waiting for commands")
+
         commando = self.in_out_clh.readline().rstrip('\n')
-        print(commando)
-        while commando != "CLOSE":
-            print('commando clienthandler: %s' % commando)
-            if commando == "OUTCOMETYPE":
+        loop = True
+        while loop:
+            jsonstring = self.in_out_clh.readline().rstrip('\n')
+            messageobj = json.loads(jsonstring)
+            messagetype = messageobj["type"]
+            messagevalue = messageobj["value"]
+            print('received %s' % commando)
+
+            if messagetype == "OUTCOMETYPE":
                 df = pd.read_csv("data/train.csv")
                 outcometypes = df[['OutcomeType']]
                 list = []
@@ -44,7 +52,7 @@ class ClientHandler(threading.Thread):
                 message = {"type": "logdata", "data": "Sending outcometype back"}
                 self.messages_queue.put("%s" % message)
 
-            if commando == "SEXUPONOUTCOME":
+            elif messagetype == "SEXUPONOUTCOME":
                 df = pd.read_csv("data/train.csv")
                 outcometypes = df[['SexuponOutcome']]
                 list = []
@@ -56,7 +64,7 @@ class ClientHandler(threading.Thread):
                 self.in_out_clh.flush()
                 message = {"type": "logdata", "data": "Sending SexuponOutcome back"}
                 self.messages_queue.put("%s" % message)
-            if commando == "AGEUPONOUTCOME":
+            elif messagetype == "AGEUPONOUTCOME":
                 df = pd.read_csv("data/train.csv")
                 outcometypes = df[['AgeuponOutcome']]
                 list = []
@@ -68,6 +76,22 @@ class ClientHandler(threading.Thread):
                 self.in_out_clh.flush()
                 message = {"type": "logdata", "data": "Sending AgeuponOutcome back"}
                 self.messages_queue.put("%s" % message)
+
+            elif messagetype == "REGISTER":
+                userdata = self.in_out_clh.readline().rstrip('\n')
+                self.user_storage.updateFile(userdata)
+
+            elif messagetype == "LOGIN":
+                allusers = self.user_storage.fileData
+                userdata = self.in_out_clh.readline().rstrip('\n')
+                validuser = False
+                for user in allusers:
+                    if user.email == userdata.email and user.password == userdata.email:
+                        validuser = True
+                        break
+                object = {"loginresonse": validuser}
+                self.in_out_clh.write(jsonpickle.encode(object) + "\n")
+                self.in_out_clh.flush()
 
             commando = self.in_out_clh.readline().rstrip('\n')
 
