@@ -1,7 +1,4 @@
-import re
-
 from Models.User import User
-from Models.PickleRepo import PickleRepo
 
 user = User("name", "nickname", "test@mail.il",  "azerty")
 

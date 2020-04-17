@@ -1,9 +1,8 @@
-import json
 import logging
 import socket
 import threading
 
-from Models.PickleRepo import PickleRepo
+from PickleRepo import PickleRepo
 from clienthandler import ClientHandler
 
 logging.basicConfig(level=logging.INFO)
@@ -48,7 +47,8 @@ class AnimalShelterServer(threading.Thread):
                 print("addr = %s" % str(addr))
                 print("clientsocket = %s" % clientsocket)
                 self.print_user_info_gui(addr)
-                clh = ClientHandler(clientsocket, self.messages_queue, addr)
+                self.user_storage = PickleRepo()
+                clh = ClientHandler(clientsocket, self.messages_queue, addr, self.user_storage)
                 clh.start()
                 clients.add(clh)
                 self.print_log_info_gui("Current Thread count: %i." % threading.active_count())
