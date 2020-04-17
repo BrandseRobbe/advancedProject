@@ -219,11 +219,14 @@ class Login(Frame):
             password = self.password.get()
 
             if email != '' and password != '':
-                self.controller.in_out_server.write("LOGIN\n")
+                loginDict = {}
                 user = User(email=email, password=password, nickname="", name="")
                 jsonuser = jsonpickle.encode(user)
-                self.controller.in_out_server.write("%s\n" % jsonuser)
+                loginDict["type"] = "LOGIN_RESPONSE"
+                loginDict["value"] = jsonuser
+                self.controller.in_out_server.write("%s \n" % json.dumps(loginDict))
                 logging.info("Sending password: User")
+                print(json.dumps(loginDict))
                 self.controller.in_out_server.flush()
 
                 # waiting for answer
@@ -311,11 +314,12 @@ class Register(Frame):
 
             if username != '' and password != '' and repeatpassword != '' and email != '' and nickname !='':
                 if password == repeatpassword:
-
-                    self.controller.in_out_server.write("REGISTER\n")
+                    registerDict = {}
                     user = User(email=email, password=password, nickname=nickname, name=username)
                     jsonuser = jsonpickle.encode(user)
-                    self.controller.in_out_server.write("%s\n" % jsonuser)
+                    registerDict["type"] = "REGISTER_RESPONSE"
+                    registerDict["value"] = jsonuser
+                    self.controller.in_out_server.write("%s \n" % json.dumps(registerDict))
                     self.controller.in_out_server.flush()
 
                     # waiting for answer
