@@ -331,7 +331,7 @@ class Register(Frame):
         self.textError = StringVar()
         self.textError.set("")
         error = Label(card, textvariable=self.textError, bg='#31ad80', fg='white')
-        error.place(relx=0.1, rely=0.85, relwidth=0.8, relheight=0.1)
+        error.place(relx=0.1, rely=0.83, relwidth=0.8, relheight=0.1)
 
         login = Button(card, text='Login', fg='white', bg='#31ad80', bd=0, command=lambda: self.goToLogin())
         login.place(relx=0.1, rely=0.90, relwidth=0.375, relheight=0.08)
