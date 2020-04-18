@@ -24,7 +24,7 @@ dark = "#31ad80"
 class Client(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-        self.framedata = {"type": "", "value": []}
+        self.outcometypedata = None
         # Setup frame
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -61,7 +61,7 @@ class Client(Tk):
             print('connection error')
             logging.error("Foutmelding: %s" % ex)
 
-    def sendMessageToServer(self, messageType, messageValue):
+    def sendMessageToServer(self, messageType, messageValue=""):
         message = {"type": messageType, "value": messageValue}
         self.in_out_server.write("%s \n" % json.dumps(message))
         self.in_out_server.flush()
@@ -86,9 +86,7 @@ class Client(Tk):
                 self.handleOutcometype(messagevalue)
 
     def handleOutcometype(self, value):
-
-        self.framedata["type"] = "Outcometype"
-        self.framedata["value"] = value
+        self.outcometypedata = value
 
     def handleRegister(self, allowed):
         if allowed:
@@ -137,7 +135,8 @@ class Navigation(Frame):
         self.frame.place(relx='0', rely='0', relheight="1", relwidth="1")
         self.buttonApplicatie = Button(self.frame, text="AnimalShelter", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Applicatie))
         self.buttonApplicatie.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
+        # self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
+        self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.navigation("outcometype"))
         self.buttonOutcome.place(relx=0.142857, rely=0.0, relheight=0.05, relwidth=0.142857)
         self.buttonName = Button(self.frame, text="Search animal by name", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Name))
         self.buttonName.place(relx=0.285714, rely=0.0, relheight=0.05, relwidth=0.142857)
@@ -149,6 +148,11 @@ class Navigation(Frame):
         self.buttonAge.place(relx=0.714285, rely=0.0, relheight=0.05, relwidth=0.142857)
         self.buttonLogin = Button(self.frame, text="Logout", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Login))
         self.buttonLogin.place(relx=0.857142, rely=0.0, relheight=0.05, relwidth=0.142857)
+
+    def navigation(self, tab):
+        if tab == "outcometype":
+            # data ophaplen
+            self.controller.showFrame(Outcome)
 
 
 class Applicatie(Navigation):
@@ -219,11 +223,13 @@ class Outcome(Navigation):
     def GetOutcome(self):
         try:
             print("sending request outcometype")
-            self.controller.sendMessageToServer("OUTCOMETYPE", "")
+            self.controller.sendMessageToServer("OUTCOMETYPE")
             print("waiting for answer ... ")
-            while (self.controller.framedata["type"] != "Outcometype"):
+            outcomeList = self.controller.outcometypedata
+            while (outcomeList == None):
                 time.sleep(0.3)
-            outcomeList = self.controller.framedata["value"]
+                print("loop")
+                outcomeList = self.controller.outcometypedata
             figureOutcome = plt.figure(figsize=(6, 6))
             plt.title("Outcome")
             plt.hist(outcomeList)
