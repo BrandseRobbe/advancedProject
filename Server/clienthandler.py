@@ -22,8 +22,8 @@ class ClientHandler(threading.Thread):
 
         self.user_storage = user_storage
         self.client = None
-        self.run()
 
+    # called on .start()
     def run(self):
         print("user just connected, waiting for commands")
         loop = True
@@ -195,9 +195,7 @@ class ClientHandler(threading.Thread):
 
     def send_alert(self, alertmessage):
         print("SENDING ALERT")
-        alertmessage = {"type": "ALERT", "data": alertmessage}
-        self.in_out_clh.write(json.dumps(alertmessage) + "\n")
-        self.in_out_clh.flush()
+        self.sendMessageToClient("ALERT", alertmessage)
         logmessage = {"type": "logdata", "data": "Sending alert %s" % alertmessage}
         self.messages_queue.put("%s" % logmessage)
 
