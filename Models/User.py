@@ -17,16 +17,23 @@ class User:
             return True
         else:
             return False
-
+    @staticmethod
+    def isValidPassword(password):
+        pat = re.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%_*#?&])[A-Za-z\d@$!#%_*?&]{6,20}$")
+        if re.search(pat, password):
+            return True
+        else:
+            return False
     @property
     def password(self):
         return self.__password
 
     @password.setter
     def password(self, password):
-        # self.__password = hash(password)
-        self.__password = hashlib.sha256(password.encode()).hexdigest()
-
+        if self.isValidPassword(password):
+            self.__password = hashlib.sha256(password.encode()).hexdigest()
+        else:
+            raise ValueError
     @property
     def email(self):
         return self.__email

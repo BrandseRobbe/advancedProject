@@ -46,7 +46,6 @@ class AnimalShelterServer(threading.Thread):
                 # self.print_bericht_gui_server("CLIENTINFO: %s" % str(addr))
                 print("addr = %s" % str(addr))
                 print("clientsocket = %s" % clientsocket)
-                self.print_user_info_gui(addr)
                 self.user_storage = PickleRepo()
                 clh = ClientHandler(clientsocket, self.messages_queue, addr, self.user_storage)
                 clh.start()
