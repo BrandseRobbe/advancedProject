@@ -21,15 +21,11 @@ class ClientHandler(threading.Thread):
         ClientHandler.numbers_clienthandlers += 1
 
         self.user_storage = user_storage
-
+        self.client = None
         self.run()
 
     def run(self):
-        # server.print_log_info_gui("User has logged in")
-        message = {"type": "logdata", "data": "User has logged in"}
-        self.messages_queue.put("%s" % message)
-        print("user just logged in, waiting for commands")
-
+        print("user just connected, waiting for commands")
         loop = True
         while loop:
             jsonstring = self.in_out_clh.readline().rstrip('\n')
@@ -40,60 +36,34 @@ class ClientHandler(threading.Thread):
             print("value: %s" % messagevalue)
 
             if messagetype == "OUTCOMETYPE":
-                ClientHandler.get_outcometype(self)
+                self.get_outcometype()
 
             elif messagetype == "BREEDDROPDOWN":
-                ClientHandler.get_breed_dropdown(self)
+                self.get_breed_dropdown()
 
             elif messagetype == "COLORDROPDOWN":
-                ClientHandler.get_color_dropdown(self)
+                self.get_color_dropdown()
 
             elif messagetype == "AGEDROPDOWN":
-                ClientHandler.get_age_dropdown(self)
+                self.get_age_dropdown()
 
             elif messagetype == "ANIMALBREED":
-                ClientHandler.get_animal_by_breed(self, messagevalue)
+                self.get_animal_by_breed(messagevalue)
 
             elif messagetype == "ANIMALCOLOR":
-                ClientHandler.get_animal_by_color(self, messagevalue)
+                self.get_animal_by_color(messagevalue)
 
             elif messagetype == "ANIMALAGE":
-                ClientHandler.get_animal_by_age(self, messagevalue)
+                self.get_animal_by_age(messagevalue)
 
             elif messagetype == "ANIMALNAME":
-                ClientHandler.get_animal_by_name(self, messagevalue)
-
+                self.get_animal_by_name(messagevalue)
 
             elif messagetype == "REGISTER_ATTEMPT":
-                try:
-                    self.user_storage.updateFile(messagevalue)
-                    response = {"type": "REGISTER_RESPONSE", "value": True}
-                    self.in_out_clh.write("%s \n" % json.dumps(response))
-                    self.in_out_clh.flush()
-                    print("register succesfull")
-                except Exception as exc:
-                    print(exc)
-                    response = {"type": "REGISTER_RESPONSE", "value": False}
-                    self.in_out_clh.write("%s \n" % json.dumps(response))
-                    self.in_out_clh.flush()
-                    print("register not succesfull")
+                self.register_client(messagevalue)
 
             elif messagetype == "LOGIN_ATTEMPT":
-                allusers = self.user_storage.fileData
-                client = jsonpickle.decode(messagevalue)
-                validuser = False
-                for user in allusers:
-                    print(user)
-                    user = jsonpickle.decode(user)
-                    print("%s == %s and %s == %s" % (user.email, client.email, user.password, client.password))
-                    if user.email == client.email and user.password == client.password:
-                        validuser = True
-                        print('login succesufull')
-                        break
-                response = {"type": "LOGIN_RESPONSE", "value": validuser}
-                self.in_out_clh.write("%s \n" % json.dumps(response))
-                self.in_out_clh.flush()
-                print("login: %s" % validuser)
+                self.login_client(messagevalue)
 
         message = {"type": "logdata", "data": "Connection closed: %s" % str(self.address)}
         self.messages_queue.put("%s" % message)
@@ -188,14 +158,54 @@ class ClientHandler(threading.Thread):
         message = {"type": "logdata", "data": "Sending animals by age back"}
         self.messages_queue.put("%s" % message)
 
+    def register_client(self, messagevalue):
+        try:
+            self.user_storage.updateFile(messagevalue)
+            response = {"type": "REGISTER_RESPONSE", "value": True}
+            self.in_out_clh.write("%s \n" % json.dumps(response))
+            self.in_out_clh.flush()
+            print("register succesfull")
+            self.client = jsonpickle.decode(messagevalue)
+            self.show_client_servergui()
+        except Exception as exc:
+            print(exc)
+            response = {"type": "REGISTER_RESPONSE", "value": False}
+            self.in_out_clh.write("%s \n" % json.dumps(response))
+            self.in_out_clh.flush()
+            print("register not succesfull")
 
-    def send_alert(self):
-        print("SENDING ALERT")
-        bericht = "ALERT"
-        self.in_out_clh.write(jsonpickle.encode(bericht) + "\n")
+    def login_client(self, messagevalue):
+        allusers = self.user_storage.fileData
+        client = jsonpickle.decode(messagevalue)
+        validuser = False
+        for user in allusers:
+            print(user)
+            user = jsonpickle.decode(user)
+            print("%s == %s and %s == %s" % (user.email, client.email, user.password, client.password))
+            if user.email == client.email and user.password == client.password:
+                validuser = True
+                print('login succesufull')
+                self.client = user
+                self.show_client_servergui()
+                break
+        response = {"type": "LOGIN_RESPONSE", "value": validuser}
+        self.in_out_clh.write("%s \n" % json.dumps(response))
         self.in_out_clh.flush()
-        message = {"type": "logdata", "data": "Sending alert %s" % bericht}
+        print("login: %s" % validuser)
+
+    def show_client_servergui(self):
+        message = {"type": "logdata", "data": "User has logged in"}
         self.messages_queue.put("%s" % message)
+        message = {"type": "userdata", "data": self.client.name}
+        self.messages_queue.put("%s" % message)
+
+    def send_alert(self, alertmessage):
+        print("SENDING ALERT")
+        alertmessage = {"type": "ALERT", "data":alertmessage}
+        self.in_out_clh.write(json.dumps(alertmessage) + "\n")
+        self.in_out_clh.flush()
+        logmessage = {"type": "logdata", "data": "Sending alert %s" % bericht}
+        self.messages_queue.put("%s" % logmessage)
 
     # def print_bericht_gui_server(self, message):
     #     if "CLIENTINFO: CONNECTION CLOSED: " in message:

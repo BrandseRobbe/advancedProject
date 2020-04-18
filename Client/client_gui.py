@@ -65,7 +65,6 @@ class Client(Tk):
             messageobj = json.loads(jsonstring)
             messagetype = messageobj["type"]
             messagevalue = messageobj["value"]
-
             if messagetype == "REGISTER_RESPONSE":
                 self.handleRegister(messagevalue)
             elif messagetype == "LOGIN_RESPONSE":
@@ -107,6 +106,7 @@ class Client(Tk):
         self.in_out_server.flush()
         self.close_connection()
 
+
 class Navigation(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -130,6 +130,7 @@ class Navigation(Frame):
         self.buttonCalculate = Button(self, text="Logout", command=lambda: self.controller.showFrame(Login))
         self.buttonCalculate.place(relx=0.857142, rely=0.0, relheight=0.05, relwidth=0.142857)
 
+
 class Applicatie(Navigation):
     def __init__(self, parent, controller):
         Navigation.__init__(self, parent, controller)
@@ -141,6 +142,7 @@ class Applicatie(Navigation):
         title = Label(text='Welcome', bg='#31ad80', fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
+
 class Name(Navigation):
     def __init__(self, parent, controller):
         Navigation.__init__(self, parent, controller)
@@ -151,6 +153,7 @@ class Name(Navigation):
 
         title = Label(text='Search animal by name', bg='#31ad80', fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
 
 class Breed(Navigation):
     def __init__(self, parent, controller):
@@ -175,6 +178,7 @@ class Color(Navigation):
         title = Label(text='Search animal by color', bg='#31ad80', fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
+
 class Age(Navigation):
     def __init__(self, parent, controller):
         Navigation.__init__(self, parent, controller)
@@ -184,6 +188,7 @@ class Age(Navigation):
 
         title = Label(text='Search animal by age', bg='#31ad80', fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
 
 class Outcome(Navigation):
     def __init__(self, parent, controller):
@@ -281,18 +286,11 @@ class Login(Frame):
         try:
             email = self.email.get()
             password = self.password.get()
-            print("__ %s __"%password)
+            print("__ %s __" % password)
             if email != '' and password != '':
-                loginDict = {}
                 user = User(email=email, password=password, nickname="", name="")
-                print(user.password)
-                print()
-                print()
-                print()
-                print()
                 jsonuser = jsonpickle.encode(user)
-                loginDict["type"] = "LOGIN_ATTEMPT"
-                loginDict["value"] = jsonuser
+                loginDict = {"type": "LOGIN_ATTEMPT", "value": jsonuser}
                 self.controller.in_out_server.write("%s \n" % json.dumps(loginDict))
                 self.controller.in_out_server.flush()
                 print(json.dumps(loginDict))
