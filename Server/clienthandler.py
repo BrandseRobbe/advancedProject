@@ -40,42 +40,29 @@ class ClientHandler(threading.Thread):
             print("value: %s" % messagevalue)
 
             if messagetype == "OUTCOMETYPE":
-                df = pd.read_csv("data/train.csv")
-                outcometypes = df[['OutcomeType']]
-                list = []
-                for index, row in outcometypes.iterrows():
-                    object = {"OutcomeType": row["OutcomeType"]}
-                    list.append(object)
-                jsonOutcomeTypes = json.dumps(list)
-                self.in_out_clh.write(jsonpickle.encode(jsonOutcomeTypes) + "\n")
-                self.in_out_clh.flush()
-                message = {"type": "logdata", "data": "Sending outcometype back"}
-                self.messages_queue.put("%s" % message)
+                ClientHandler.get_outcometype(self)
 
-            elif messagetype == "SEXUPONOUTCOME":
-                df = pd.read_csv("data/train.csv")
-                outcometypes = df[['SexuponOutcome']]
-                list = []
-                for index, row in outcometypes.iterrows():
-                    object = {"SexuponOutcome": row["SexuponOutcome"]}
-                    list.append(object)
-                jsonSexuponOutcome = json.dumps(list)
-                self.in_out_clh.write(jsonpickle.encode(jsonSexuponOutcome) + "\n")
-                self.in_out_clh.flush()
-                message = {"type": "logdata", "data": "Sending SexuponOutcome back"}
-                self.messages_queue.put("%s" % message)
-            elif messagetype == "AGEUPONOUTCOME":
-                df = pd.read_csv("data/train.csv")
-                outcometypes = df[['AgeuponOutcome']]
-                list = []
-                for index, row in outcometypes.iterrows():
-                    object = {"AgeuponOutcome": row["AgeuponOutcome"]}
-                    list.append(object)
-                jsonAgeuponOutcome = json.dumps(list)
-                self.in_out_clh.write(jsonpickle.encode(jsonAgeuponOutcome) + "\n")
-                self.in_out_clh.flush()
-                message = {"type": "logdata", "data": "Sending AgeuponOutcome back"}
-                self.messages_queue.put("%s" % message)
+            elif messagetype == "BREEDDROPDOWN":
+                ClientHandler.get_breed_dropdown(self)
+
+            elif messagetype == "COLORDROPDOWN":
+                ClientHandler.get_color_dropdown(self)
+
+            elif messagetype == "AGEDROPDOWN":
+                ClientHandler.get_age_dropdown(self)
+
+            elif messagetype == "ANIMALBREED":
+                ClientHandler.get_animal_by_breed(self, messagevalue)
+
+            elif messagetype == "ANIMALCOLOR":
+                ClientHandler.get_animal_by_color(self, messagevalue)
+
+            elif messagetype == "ANIMALAGE":
+                ClientHandler.get_animal_by_age(self, messagevalue)
+
+            elif messagetype == "ANIMALNAME":
+                ClientHandler.get_animal_by_name(self, messagevalue)
+
 
             elif messagetype == "REGISTER_ATTEMPT":
                 try:
@@ -112,6 +99,95 @@ class ClientHandler(threading.Thread):
         self.messages_queue.put("%s" % message)
         self.is_connected = False
         self.socketclient.close()
+
+    def get_outcometype(self):
+        df = pd.read_csv("data/train.csv")
+        outcometypes = df[['OutcomeType']]
+        list = []
+        for index, row in outcometypes.iterrows():
+            object = {"OutcomeType": row["OutcomeType"]}
+            list.append(object)
+        jsonOutcomeTypes = json.dumps(list)
+        self.in_out_clh.write(jsonpickle.encode(jsonOutcomeTypes) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending outcometype back"}
+        self.messages_queue.put("%s" % message)
+
+    def get_breed_dropdown(self):
+        df = pd.read_csv("data/train.csv")
+        breed = df[['Breed']]
+        list = []
+        for index, row in breed.iterrows():
+            object = {"Breed": row["Breed"]}
+            list.append(object)
+        jsonBreed = json.dumps(list)
+        self.in_out_clh.write(jsonpickle.encode(jsonBreed) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending breed back"}
+        self.messages_queue.put("%s" % message)
+
+    def get_color_dropdown(self):
+        df = pd.read_csv("data/train.csv")
+        color = df[['Color']]
+        list = []
+        for index, row in color.iterrows():
+            object = {"Color": row["Color"]}
+            list.append(object)
+        jsonColor = json.dumps(list)
+        self.in_out_clh.write(jsonpickle.encode(jsonColor) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending color back"}
+        self.messages_queue.put("%s" % message)
+
+    def get_age_dropdown(self):
+        df = pd.read_csv("data/train.csv")
+        age = df[['Age']]
+        list = []
+        for index, row in age.iterrows():
+            object = {"Age": row["Age"]}
+            list.append(object)
+        jsonAge = json.dumps(list)
+        self.in_out_clh.write(jsonpickle.encode(jsonAge) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending age back"}
+        self.messages_queue.put("%s" % message)
+
+    def get_animal_by_name(self, search):
+        df = pd.read_csv("data/train.csv")
+        animal_name = df.loc[df['Name'] == search]
+        jsonName = json.dumps(animal_name)
+        self.in_out_clh.write(jsonpickle.encode(jsonName) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending animals by name back"}
+        self.messages_queue.put("%s" % message)
+
+    def get_animal_by_breed(self, search):
+        df = pd.read_csv("data/train.csv")
+        animal_breed = df.loc[df['Breed'] == search]
+        jsonBreed = json.dumps(animal_breed)
+        self.in_out_clh.write(jsonpickle.encode(jsonBreed) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending animals by breed back"}
+        self.messages_queue.put("%s" % message)
+
+    def get_animal_by_color(self, search):
+        df = pd.read_csv("data/train.csv")
+        animal_color = df.loc[df['Color'] == search]
+        jsonColor = json.dumps(animal_color)
+        self.in_out_clh.write(jsonpickle.encode(jsonColor) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending animals by color back"}
+        self.messages_queue.put("%s" % message)
+
+    def get_animal_by_age(self, search):
+        df = pd.read_csv("data/train.csv")
+        animal_age = df.loc[df['Age'] == search]
+        jsonAge = json.dumps(animal_age)
+        self.in_out_clh.write(jsonpickle.encode(jsonAge) + "\n")
+        self.in_out_clh.flush()
+        message = {"type": "logdata", "data": "Sending animals by age back"}
+        self.messages_queue.put("%s" % message)
+
 
     def send_alert(self):
         print("SENDING ALERT")

@@ -22,7 +22,7 @@ class Client(Tk):
         container.pack(side='top', fill='both', expand=True)
 
         self.frames = {}
-        pages = [Login, Register, Applicatie]
+        pages = [Login, Register, Applicatie, Outcome, Name, Breed, Color, Age]
 
         for f in pages:
             frame = f(container, self)
@@ -35,7 +35,9 @@ class Client(Tk):
         self.showFrame(Login)
 
     def showFrame(self, frame):
+        print(frame)
         frame = self.frames[frame]
+        print(frame)
         frame.tkraise()
 
     def makeConnectionWithServer(self):
@@ -105,23 +107,94 @@ class Client(Tk):
         self.in_out_server.flush()
         self.close_connection()
 
-
-class Applicatie(Frame):
+class Navigation(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        self.controller = controller
+        # controller = self van client
+        self.showNav()
+
+    def showNav(self):
+        self.buttonCalculate = Button(self, text="", command=lambda: self.controller.showFrame(Applicatie))
+        self.buttonCalculate.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonCalculate = Button(self, text="Get outcome", command=lambda: self.controller.showFrame(Outcome))
+        self.buttonCalculate.place(relx=0.142857, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonCalculate = Button(self, text="Search animal by name", command=lambda: self.controller.showFrame(Name))
+        self.buttonCalculate.place(relx=0.285714, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonCalculate = Button(self, text="Search animal by breed", command=lambda: self.controller.showFrame(Breed))
+        self.buttonCalculate.place(relx=0.428571, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonCalculate = Button(self, text="Search animal by color", command=lambda: self.controller.showFrame(Color))
+        self.buttonCalculate.place(relx=0.571428, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonCalculate = Button(self, text="Search animal by Age", command=lambda: self.controller.showFrame(Age))
+        self.buttonCalculate.place(relx=0.714285, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonCalculate = Button(self, text="Logout", command=lambda: self.controller.showFrame(Login))
+        self.buttonCalculate.place(relx=0.857142, rely=0.0, relheight=0.05, relwidth=0.142857)
+
+class Applicatie(Navigation):
+    def __init__(self, parent, controller):
+        Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
 
         self.pack(fill=BOTH, expand=1)
 
-        # self.buttonCalculate = Button(self, text="Get outcome", command=self.GetOutcome)
-        # self.buttonCalculate.place(relx=0.05, rely=0.05, relheight=0.05, relwidth=0.1875)
-        # self.buttonCalculate = Button(self, text="Get Sex", command=self.GetSexuponOutcome)
-        # self.buttonCalculate.place(relx=0.2875, rely=0.05, relheight=0.05, relwidth=0.1875)
-        # self.buttonCalculate = Button(self, text="Get Age", command=self.GetAgeuponOutcome)
-        # self.buttonCalculate.place(relx=0.525, rely=0.05, relheight=0.05, relwidth=0.1875)
-        # self.buttonCalculate = Button(self, text="Get ...", command=self.GetAgeuponOutcome)
-        # self.buttonCalculate.place(relx=0.7625, rely=0.05, relheight=0.05, relwidth=0.1875)
+        title = Label(text='Welcome', bg='#31ad80', fg='black')
+        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
+class Name(Navigation):
+    def __init__(self, parent, controller):
+        Navigation.__init__(self, parent, controller)
+        self.controller = controller
+        # controller = self van client
+
+        self.pack(fill=BOTH, expand=1)
+
+        title = Label(text='Search animal by name', bg='#31ad80', fg='black')
+        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
+class Breed(Navigation):
+    def __init__(self, parent, controller):
+        Navigation.__init__(self, parent, controller)
+        self.controller = controller
+        # controller = self van client
+
+        self.pack(fill=BOTH, expand=1)
+
+        title = Label(text='Search animal by breed', bg='#31ad80', fg='black')
+        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
+
+class Color(Navigation):
+    def __init__(self, parent, controller):
+        Navigation.__init__(self, parent, controller)
+        self.controller = controller
+        # controller = self van client
+
+        self.pack(fill=BOTH, expand=1)
+
+        title = Label(text='Search animal by color', bg='#31ad80', fg='black')
+        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
+class Age(Navigation):
+    def __init__(self, parent, controller):
+        Navigation.__init__(self, parent, controller)
+        self.controller = controller
+        # controller = self van client
+        self.pack(fill=BOTH, expand=1)
+
+        title = Label(text='Search animal by age', bg='#31ad80', fg='black')
+        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
+class Outcome(Navigation):
+    def __init__(self, parent, controller):
+        Navigation.__init__(self, parent, controller)
+        self.controller = controller
+        # controller = self van client
+
+        self.pack(fill=BOTH, expand=1)
+
+        title = Label(text='Show outcome', bg='#31ad80', fg='black')
+        title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
     def ProcessData(self, input, order):
         breed = json.loads(input)
@@ -153,50 +226,6 @@ class Applicatie(Frame):
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
             messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
-
-    # def GetSexuponOutcome(self):
-    #     try:
-    #         print("sending ...")
-    #         self.controller.in_out_server.write("SEXUPONOUTCOME\n")
-    #         self.controller.in_out_server.flush()
-    #         print("waiting for answer ... ")
-    #         answer = self.controller.in_out_server.readline().rstrip('\n')
-    #         SexuponOutcomeList = self.ProcessData(answer, "SexuponOutcome")
-    #
-    #         figureSexuponOutcome = plt.figure(figsize=(6, 6))
-    #         plt.title("Sex")
-    #         figureSexuponOutcome.autofmt_xdate(rotation=90)
-    #         plt.gcf().canvas.draw()
-    #         histogram = plt.hist(SexuponOutcomeList)
-    #         histogram = FigureCanvasTkAgg(figureSexuponOutcome, self)
-    #         histogram.get_tk_widget().place(relx=0.2675, rely=0.15, relheight=0.80, relwidth=0.2275)
-    #         print("Done!")
-    #
-    #     except Exception as ex:
-    #         logging.error("Foutmelding: %s" % ex)
-    #         messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
-
-    # def GetAgeuponOutcome(self):
-    #     try:
-    #         print("sending ...")
-    #         self.controller.in_out_server.write("AGEUPONOUTCOME\n")
-    #         self.controller.in_out_server.flush()
-    #         print("waiting for answer ... ")
-    #         answer = self.controller.in_out_server.readline().rstrip('\n')
-    #         AgeuponOutcomeList = self.ProcessData(answer, "AgeuponOutcome")
-    #
-    #         figureAgeuponOutcome = plt.figure(figsize=(6, 6))
-    #         plt.title("Age")
-    #         figureAgeuponOutcome.autofmt_xdate(rotation=90)
-    #         plt.gcf().canvas.draw()
-    #         histogram = plt.hist(AgeuponOutcomeList)
-    #         histogram = FigureCanvasTkAgg(figureAgeuponOutcome, self)
-    #         histogram.get_tk_widget().place(relx=0.505, rely=0.15, relheight=0.80, relwidth=0.2275)
-    #         print("Done!")
-    #
-    #     except Exception as ex:
-    #         logging.error("Foutmelding: %s" % ex)
-    #         messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
 
     def close_connection(self):
         try:
