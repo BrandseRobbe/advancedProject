@@ -28,6 +28,7 @@ class ClientHandler(threading.Thread):
         print("user just connected, waiting for commands")
         loop = True
         while loop:
+            # ontvangt van client gui
             jsonstring = self.in_out_clh.readline().rstrip('\n')
             messageobj = json.loads(jsonstring)
             messagetype = messageobj["type"]

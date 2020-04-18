@@ -19,6 +19,7 @@ button_active = "#b3d2ff"
 pressed_button = "#b3d2ff"
 dark = "#31ad80"
 
+
 class Client(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
@@ -59,10 +60,16 @@ class Client(Tk):
             print('connection error')
             logging.error("Foutmelding: %s" % ex)
 
+    def sendMessageToServer(self, messageType, messageValue):
+        message = {"type": messageType, "value": messageValue}
+        self.in_out_server.write("%s \n" % json.dumps(message))
+        self.in_out_server.flush()
+
     def getserverresponse(self):
         print("starting response loop")
         loop = True
         while loop:
+            # ontvangt van clienthandles
             jsonstring = self.in_out_server.readline().rstrip('\n')
             print("waiting for message ...")
             messageobj = json.loads(jsonstring)
@@ -120,19 +127,19 @@ class Navigation(Frame):
     def showNav(self):
         self.frame = Frame(self, bg=light)
         self.frame.place(relx='0', rely='0', relheight="1", relwidth="1")
-        self.buttonApplicatie = Button(self.frame, text="AnimalShelter" ,bg=button, activebackground=pressed_button ,borderwidth=0, command=lambda: self.controller.showFrame(Applicatie))
+        self.buttonApplicatie = Button(self.frame, text="AnimalShelter", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Applicatie))
         self.buttonApplicatie.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonOutcome = Button(self.frame, text="Get outcome",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
+        self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
         self.buttonOutcome.place(relx=0.142857, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonName = Button(self.frame, text="Search animal by name",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Name))
+        self.buttonName = Button(self.frame, text="Search animal by name", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Name))
         self.buttonName.place(relx=0.285714, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonBreed = Button(self.frame, text="Search animal by breed",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Breed))
+        self.buttonBreed = Button(self.frame, text="Search animal by breed", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Breed))
         self.buttonBreed.place(relx=0.428571, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonColor = Button(self.frame, text="Search animal by color",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Color))
+        self.buttonColor = Button(self.frame, text="Search animal by color", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Color))
         self.buttonColor.place(relx=0.571428, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonAge = Button(self.frame, text="Search animal by Age",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Age))
+        self.buttonAge = Button(self.frame, text="Search animal by Age", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Age))
         self.buttonAge.place(relx=0.714285, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonLogin = Button(self.frame, text="Logout",bg=button, activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Login))
+        self.buttonLogin = Button(self.frame, text="Logout", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Login))
         self.buttonLogin.place(relx=0.857142, rely=0.0, relheight=0.05, relwidth=0.142857)
 
 
@@ -142,7 +149,6 @@ class Applicatie(Navigation):
         self.controller = controller
         # controller = self van client
         self.buttonApplicatie.configure(bg=button_active)
-
 
         title = Label(self.frame, text='Welcome', bg=light, fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
@@ -201,16 +207,12 @@ class Outcome(Navigation):
 
         self.pack(fill=BOTH, expand=1)
 
-
-
-
     def ProcessData(self, input, order):
         breed = json.loads(input)
         breed = jsonpickle.decode(breed)
         outcomeList = []
         for item in breed:
             outcomeList.append(item[order])
-
         return outcomeList
 
     def GetOutcome(self):
@@ -244,6 +246,7 @@ class Outcome(Navigation):
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
             messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
+
 
 class Login(Frame):
     def __init__(self, parent, controller):
@@ -292,10 +295,7 @@ class Login(Frame):
             if email != '' and password != '':
                 user = User(email=email, password=password, nickname="", name="")
                 jsonuser = jsonpickle.encode(user)
-                loginDict = {"type": "LOGIN_ATTEMPT", "value": jsonuser}
-                self.controller.in_out_server.write("%s \n" % json.dumps(loginDict))
-                self.controller.in_out_server.flush()
-                print(json.dumps(loginDict))
+                self.controller.sendMessageToServer("LOGIN_ATTEMPT", jsonuser)
             else:
                 self.textError.set("Please fill in all fields")
 
@@ -371,14 +371,9 @@ class Register(Frame):
 
             if username != '' and password != '' and repeatpassword != '' and email != '' and nickname != '':
                 if password == repeatpassword:
-                    registerDict = {}
                     user = User(email=email, password=password, nickname=nickname, name=username)
                     jsonuser = jsonpickle.encode(user)
-                    registerDict["type"] = "REGISTER_ATTEMPT"
-                    registerDict["value"] = jsonuser
-                    self.controller.in_out_server.write("%s \n" % json.dumps(registerDict))
-                    self.controller.in_out_server.flush()
-
+                    self.controller.sendMessageToServer("REGISTER_ATTEMPT", jsonuser)
                 else:
                     # Error handeling !!
                     self.textError.set("Passwords aren't the same")
