@@ -12,6 +12,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from Models.User import User
 import tkinter.font as tkFont
+import time
 
 light = "#f0f6ff"
 button = "#d6e7ff"
@@ -23,7 +24,7 @@ dark = "#31ad80"
 class Client(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-
+        self.framedata = {"type":"", "value":[]}
         # Setup frame
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -80,7 +81,14 @@ class Client(Tk):
             elif messagetype == "LOGIN_RESPONSE":
                 self.handleLogin(messagevalue)
             elif messagetype == "ALERT":
-                self.handleAlert(messagevalue)
+                    self.handleAlert(messagevalue)
+            elif messagetype =="OUTCOMETYPE":
+                self.handleOutcometype(messagevalue)
+
+    def handleOutcometype(self, value):
+
+        self.framedata["type"] = "Outcometype"
+        self.framedata["value"] = value
 
     def handleRegister(self, allowed):
         if allowed:
@@ -206,43 +214,28 @@ class Outcome(Navigation):
         self.buttonOutcome.configure(bg=button_active)
 
         self.pack(fill=BOTH, expand=1)
-
-    def ProcessData(self, input, order):
-        breed = json.loads(input)
-        breed = jsonpickle.decode(breed)
-        outcomeList = []
-        for item in breed:
-            outcomeList.append(item[order])
-        return outcomeList
+        self.GetOutcome()
 
     def GetOutcome(self):
         try:
-            print("sending ...")
-            self.controller.in_out_server.write("OUTCOMETYPE\n")
-            self.controller.in_out_server.flush()
+            print("sending request outcometype")
+            self.controller.sendMessageToServer("OUTCOMETYPE", "")
             print("waiting for answer ... ")
-            answer = self.controller.in_out_server.readline().rstrip('\n')
-            outcomeList = self.ProcessData(answer, "OutcomeType")
-
+            while(self.controller.framedata["type"] != "Outcometype"):
+                time.sleep(0.3)
+            outcomeList = self.controller.framedata["value"]
             figureOutcome = plt.figure(figsize=(6, 6))
             plt.title("Outcome")
+            outcomeList = [item[0] for item in outcomeList]
+            plt.hist(outcomeList)
             figureOutcome.autofmt_xdate(rotation=90)
             plt.gcf().canvas.draw()
-            histogram = plt.hist(outcomeList)
             histogram = FigureCanvasTkAgg(figureOutcome, self)
-            histogram.get_tk_widget().place(relx=0.03, rely=0.15, relheight=0.80, relwidth=0.2275)
+            histogram.get_tk_widget().place(relx=0.05, rely=0.15, relheight=0.75, relwidth=0.90)
+
             print("Done!")
 
-        except Exception as ex:
-            logging.error("Foutmelding: %s" % ex)
-            messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
 
-    def close_connection(self):
-        try:
-            logging.info("Close connection with server...")
-            self.controller.in_out_server.write("%s\n" % "CLOSE")
-            self.controller.in_out_server.flush()
-            self.controller.socket_to_server.close()
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
             messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")

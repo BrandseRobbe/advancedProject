@@ -74,12 +74,11 @@ class ClientHandler(threading.Thread):
     def get_outcometype(self):
         df = pd.read_csv("data/train.csv")
         outcometypes = df[['OutcomeType']]
-        list = []
-        for index, row in outcometypes.iterrows():
-            object = {"OutcomeType": row["OutcomeType"]}
-            list.append(object)
-        jsonOutcomeTypes = json.dumps(list)
-        self.in_out_clh.write(jsonpickle.encode(jsonOutcomeTypes) + "\n")
+        dict = {}
+        dict["type"] = "OUTCOMETYPE"
+        dict["value"] = outcometypes.values.tolist()
+        print(dict["value"])
+        self.in_out_clh.write(json.dumps(dict) + "\n")
         self.in_out_clh.flush()
         message = {"type": "logdata", "data": "Sending outcometype back"}
         self.messages_queue.put("%s" % message)
