@@ -107,7 +107,7 @@ class Client(Tk):
             raise EXCEPTION
 
     def handleAlert(self, message):
-        pass
+        print("!!! %s !!!" % message)
 
     def close_connection(self):
         try:
