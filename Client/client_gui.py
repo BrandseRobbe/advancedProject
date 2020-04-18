@@ -11,7 +11,13 @@ import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from Models.User import User
+import tkinter.font as tkFont
 
+light = "#f0f6ff"
+button = "#d6e7ff"
+button_active = "#b3d2ff"
+pressed_button = "#b3d2ff"
+dark = "#31ad80"
 
 class Client(Tk):
     def __init__(self, *args, **kwargs):
@@ -21,6 +27,9 @@ class Client(Tk):
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
 
+        self.makeConnectionWithServer()
+        responseloop = Thread(target=self.getserverresponse)
+        responseloop.start()
         self.frames = {}
         pages = [Login, Register, Applicatie, Outcome, Name, Breed, Color, Age]
 
@@ -28,16 +37,10 @@ class Client(Tk):
             frame = f(container, self)
             self.frames[f] = frame
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
-
-        self.makeConnectionWithServer()
-        responseloop = Thread(target=self.getserverresponse)
-        responseloop.start()
-        self.showFrame(Login)
+        self.showFrame(Applicatie)
 
     def showFrame(self, frame):
-        print(frame)
         frame = self.frames[frame]
-        print(frame)
         frame.tkraise()
 
     def makeConnectionWithServer(self):
@@ -115,30 +118,32 @@ class Navigation(Frame):
         self.showNav()
 
     def showNav(self):
-        self.buttonCalculate = Button(self, text="", command=lambda: self.controller.showFrame(Applicatie))
-        self.buttonCalculate.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonCalculate = Button(self, text="Get outcome", command=lambda: self.controller.showFrame(Outcome))
-        self.buttonCalculate.place(relx=0.142857, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonCalculate = Button(self, text="Search animal by name", command=lambda: self.controller.showFrame(Name))
-        self.buttonCalculate.place(relx=0.285714, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonCalculate = Button(self, text="Search animal by breed", command=lambda: self.controller.showFrame(Breed))
-        self.buttonCalculate.place(relx=0.428571, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonCalculate = Button(self, text="Search animal by color", command=lambda: self.controller.showFrame(Color))
-        self.buttonCalculate.place(relx=0.571428, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonCalculate = Button(self, text="Search animal by Age", command=lambda: self.controller.showFrame(Age))
-        self.buttonCalculate.place(relx=0.714285, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonCalculate = Button(self, text="Logout", command=lambda: self.controller.showFrame(Login))
-        self.buttonCalculate.place(relx=0.857142, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.frame = Frame(self, bg=light)
+        self.frame.place(relx='0', rely='0', relheight="1", relwidth="1")
+        self.buttonApplicatie = Button(self.frame, text="AnimalShelter" ,bg=button, activebackground=pressed_button ,borderwidth=0, command=lambda: self.controller.showFrame(Applicatie))
+        self.buttonApplicatie.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonOutcome = Button(self.frame, text="Get outcome",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
+        self.buttonOutcome.place(relx=0.142857, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonName = Button(self.frame, text="Search animal by name",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Name))
+        self.buttonName.place(relx=0.285714, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonBreed = Button(self.frame, text="Search animal by breed",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Breed))
+        self.buttonBreed.place(relx=0.428571, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonColor = Button(self.frame, text="Search animal by color",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Color))
+        self.buttonColor.place(relx=0.571428, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonAge = Button(self.frame, text="Search animal by Age",bg=button,activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Age))
+        self.buttonAge.place(relx=0.714285, rely=0.0, relheight=0.05, relwidth=0.142857)
+        self.buttonLogin = Button(self.frame, text="Logout",bg=button, activebackground=pressed_button,borderwidth=0, command=lambda: self.controller.showFrame(Login))
+        self.buttonLogin.place(relx=0.857142, rely=0.0, relheight=0.05, relwidth=0.142857)
 
 class Applicatie(Navigation):
     def __init__(self, parent, controller):
         Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
+        self.buttonApplicatie.configure(bg=button_active)
 
-        self.pack(fill=BOTH, expand=1)
 
-        title = Label(text='Welcome', bg='#31ad80', fg='black')
+        title = Label(self.frame, text='Welcome', bg=light, fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
 class Name(Navigation):
@@ -146,10 +151,9 @@ class Name(Navigation):
         Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
+        self.buttonName.configure(bg=button_active)
 
-        self.pack(fill=BOTH, expand=1)
-
-        title = Label(text='Search animal by name', bg='#31ad80', fg='black')
+        title = Label(self.frame, text='Search animal by name', bg=light, fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
 class Breed(Navigation):
@@ -157,10 +161,9 @@ class Breed(Navigation):
         Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
+        self.buttonBreed.configure(bg=button_active)
 
-        self.pack(fill=BOTH, expand=1)
-
-        title = Label(text='Search animal by breed', bg='#31ad80', fg='black')
+        title = Label(self.frame, text='Search animal by breed', bg=light, fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
 
@@ -169,10 +172,9 @@ class Color(Navigation):
         Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
+        self.buttonColor.configure(bg=button_active)
 
-        self.pack(fill=BOTH, expand=1)
-
-        title = Label(text='Search animal by color', bg='#31ad80', fg='black')
+        title = Label(self.frame, text='Search animal by color', bg=light, fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
 class Age(Navigation):
@@ -180,9 +182,9 @@ class Age(Navigation):
         Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
-        self.pack(fill=BOTH, expand=1)
+        self.buttonAge.configure(bg=button_active)
 
-        title = Label(text='Search animal by age', bg='#31ad80', fg='black')
+        title = Label(self.frame, text='Search animal by age', bg=light, fg='black')
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
 class Outcome(Navigation):
@@ -190,11 +192,12 @@ class Outcome(Navigation):
         Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
+        self.buttonOutcome.configure(bg=button_active)
 
         self.pack(fill=BOTH, expand=1)
 
-        title = Label(text='Show outcome', bg='#31ad80', fg='black')
-        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+
+
 
     def ProcessData(self, input, order):
         breed = json.loads(input)
@@ -236,7 +239,6 @@ class Outcome(Navigation):
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
             messagebox.showinfo("AnimalShelterServer", "Something has gone wrong...")
-
 
 class Login(Frame):
     def __init__(self, parent, controller):
