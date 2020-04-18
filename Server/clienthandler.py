@@ -71,15 +71,17 @@ class ClientHandler(threading.Thread):
         self.is_connected = False
         self.socketclient.close()
 
+    def sendMessageToClient(self, messageType, messageValue):
+        message = {"type": messageType, "value": messageValue}
+        self.in_out_clh.write("%s \n" % json.dumps(message))
+        self.in_out_clh.flush()
+
     def get_outcometype(self):
         df = pd.read_csv("data/train.csv")
-        outcometypes = df[['OutcomeType']]
-        dict = {}
-        dict["type"] = "OUTCOMETYPE"
-        dict["value"] = outcometypes.values.tolist()
-        print(dict["value"])
-        self.in_out_clh.write(json.dumps(dict) + "\n")
-        self.in_out_clh.flush()
+        outcometypes = df[['OutcomeType']].values.tolist()
+        outcometypes = [item[0] for item in outcometypes]
+        self.sendMessageToClient("OUTCOMETYPE", outcometypes)
+
         message = {"type": "logdata", "data": "Sending outcometype back"}
         self.messages_queue.put("%s" % message)
 
@@ -161,17 +163,13 @@ class ClientHandler(threading.Thread):
     def register_client(self, messagevalue):
         try:
             self.user_storage.updateFile(messagevalue)
-            response = {"type": "REGISTER_RESPONSE", "value": True}
-            self.in_out_clh.write("%s \n" % json.dumps(response))
-            self.in_out_clh.flush()
+            self.sendMessageToClient("REGISTER_RESPONSE", True)
             print("register succesfull")
             self.client = jsonpickle.decode(messagevalue)
             self.show_client_servergui()
         except Exception as exc:
             print(exc)
-            response = {"type": "REGISTER_RESPONSE", "value": False}
-            self.in_out_clh.write("%s \n" % json.dumps(response))
-            self.in_out_clh.flush()
+            self.sendMessageToClient("REGISTER_RESPONSE", False)
             print("register not succesfull")
 
     def login_client(self, messagevalue):
@@ -179,18 +177,14 @@ class ClientHandler(threading.Thread):
         client = jsonpickle.decode(messagevalue)
         validuser = False
         for user in allusers:
-            print(user)
             user = jsonpickle.decode(user)
-            print("%s == %s and %s == %s" % (user.email, client.email, user.password, client.password))
             if user.email == client.email and user.password == client.password:
                 validuser = True
                 print('login succesufull')
                 self.client = user
                 self.show_client_servergui()
                 break
-        response = {"type": "LOGIN_RESPONSE", "value": validuser}
-        self.in_out_clh.write("%s \n" % json.dumps(response))
-        self.in_out_clh.flush()
+        self.sendMessageToClient("LOGIN_RESPONSE", validuser)
         print("login: %s" % validuser)
 
     def show_client_servergui(self):
@@ -201,10 +195,10 @@ class ClientHandler(threading.Thread):
 
     def send_alert(self, alertmessage):
         print("SENDING ALERT")
-        alertmessage = {"type": "ALERT", "data":alertmessage}
+        alertmessage = {"type": "ALERT", "data": alertmessage}
         self.in_out_clh.write(json.dumps(alertmessage) + "\n")
         self.in_out_clh.flush()
-        logmessage = {"type": "logdata", "data": "Sending alert %s" % bericht}
+        logmessage = {"type": "logdata", "data": "Sending alert %s" % alertmessage}
         self.messages_queue.put("%s" % logmessage)
 
     # def print_bericht_gui_server(self, message):

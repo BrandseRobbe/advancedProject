@@ -24,7 +24,7 @@ dark = "#31ad80"
 class Client(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
-        self.framedata = {"type":"", "value":[]}
+        self.framedata = {"type": "", "value": []}
         # Setup frame
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -81,8 +81,8 @@ class Client(Tk):
             elif messagetype == "LOGIN_RESPONSE":
                 self.handleLogin(messagevalue)
             elif messagetype == "ALERT":
-                    self.handleAlert(messagevalue)
-            elif messagetype =="OUTCOMETYPE":
+                self.handleAlert(messagevalue)
+            elif messagetype == "OUTCOMETYPE":
                 self.handleOutcometype(messagevalue)
 
     def handleOutcometype(self, value):
@@ -221,20 +221,17 @@ class Outcome(Navigation):
             print("sending request outcometype")
             self.controller.sendMessageToServer("OUTCOMETYPE", "")
             print("waiting for answer ... ")
-            while(self.controller.framedata["type"] != "Outcometype"):
+            while (self.controller.framedata["type"] != "Outcometype"):
                 time.sleep(0.3)
             outcomeList = self.controller.framedata["value"]
             figureOutcome = plt.figure(figsize=(6, 6))
             plt.title("Outcome")
-            outcomeList = [item[0] for item in outcomeList]
             plt.hist(outcomeList)
             figureOutcome.autofmt_xdate(rotation=90)
             plt.gcf().canvas.draw()
             histogram = FigureCanvasTkAgg(figureOutcome, self)
             histogram.get_tk_widget().place(relx=0.05, rely=0.15, relheight=0.75, relwidth=0.90)
-
             print("Done!")
-
 
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)
