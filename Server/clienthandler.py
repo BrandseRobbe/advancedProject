@@ -87,40 +87,28 @@ class ClientHandler(threading.Thread):
 
     def get_breed_dropdown(self):
         df = pd.read_csv("data/train.csv")
-        breed = df[['Breed']]
-        list = []
-        for index, row in breed.iterrows():
-            object = {"Breed": row["Breed"]}
-            list.append(object)
-        jsonBreed = json.dumps(list)
-        self.in_out_clh.write(jsonpickle.encode(jsonBreed) + "\n")
-        self.in_out_clh.flush()
+        breed = df[['Breed']].values.tolist()
+        breed = [item[0] for item in breed]
+        breed = list(dict.fromkeys(breed))
+        self.sendMessageToClient("BREEDDROPDOWN", breed)
         message = {"type": "logdata", "data": "Sending breed back"}
         self.messages_queue.put("%s" % message)
 
     def get_color_dropdown(self):
         df = pd.read_csv("data/train.csv")
-        color = df[['Color']]
-        list = []
-        for index, row in color.iterrows():
-            object = {"Color": row["Color"]}
-            list.append(object)
-        jsonColor = json.dumps(list)
-        self.in_out_clh.write(jsonpickle.encode(jsonColor) + "\n")
-        self.in_out_clh.flush()
+        color = df[['Color']].values.tolist()
+        color = [item[0] for item in color]
+        color = list(dict.fromkeys(color))
+        self.sendMessageToClient("COLORDROPDOWN", color)
         message = {"type": "logdata", "data": "Sending color back"}
         self.messages_queue.put("%s" % message)
 
     def get_age_dropdown(self):
         df = pd.read_csv("data/train.csv")
-        age = df[['Age']]
-        list = []
-        for index, row in age.iterrows():
-            object = {"Age": row["Age"]}
-            list.append(object)
-        jsonAge = json.dumps(list)
-        self.in_out_clh.write(jsonpickle.encode(jsonAge) + "\n")
-        self.in_out_clh.flush()
+        age = df[['AgeuponOutcome']].values.tolist()
+        age = [item[0] for item in age]
+        age = list(dict.fromkeys(age))
+        self.sendMessageToClient("AGEDROPDOWN", age)
         message = {"type": "logdata", "data": "Sending age back"}
         self.messages_queue.put("%s" % message)
 

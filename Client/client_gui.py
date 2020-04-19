@@ -18,13 +18,15 @@ light = "#f0f6ff"
 button = "#d6e7ff"
 button_active = "#b3d2ff"
 pressed_button = "#b3d2ff"
-dark = "#31ad80"
-
+dark = "#adceff"
 
 class Client(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         self.outcometypedata = None
+        self.choicesBreedData = None
+        self.choicesColorData = None
+        self.choicesAgeData = None
         # Setup frame
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -34,7 +36,6 @@ class Client(Tk):
         responseloop.start()
         self.frames = {}
         pages = [Login, Register, Applicatie, Outcome, Name, Breed, Color, Age]
-
         for f in pages:
             frame = f(container, self)
             self.frames[f] = frame
@@ -84,6 +85,21 @@ class Client(Tk):
                 self.handleAlert(messagevalue)
             elif messagetype == "OUTCOMETYPE":
                 self.handleOutcometype(messagevalue)
+            elif messagetype =="BREEDDROPDOWN":
+                self.handleBreedDropdown(messagevalue)
+            elif messagetype =="COLORDROPDOWN":
+                self.handleColorDropdown(messagevalue)
+            elif messagetype =="AGEDROPDOWN":
+                self.handleAgeDropdown(messagevalue)
+
+    def handleAgeDropdown(self, value):
+        self.choicesAgeData = value
+
+    def handleColorDropdown(self,value):
+        self.choicesColorData = value
+
+    def handleBreedDropdown(self, value):
+        self.choicesBreedData = value
 
     def handleOutcometype(self, value):
         self.outcometypedata = value
@@ -135,8 +151,8 @@ class Navigation(Frame):
         self.frame.place(relx='0', rely='0', relheight="1", relwidth="1")
         self.buttonApplicatie = Button(self.frame, text="AnimalShelter", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Applicatie))
         self.buttonApplicatie.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=0.142857)
-        # self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
-        self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.navigation("outcometype"))
+        self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
+        #self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.navigation("outcometype"))
         self.buttonOutcome.place(relx=0.142857, rely=0.0, relheight=0.05, relwidth=0.142857)
         self.buttonName = Button(self.frame, text="Search animal by name", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Name))
         self.buttonName.place(relx=0.285714, rely=0.0, relheight=0.05, relwidth=0.142857)
@@ -166,15 +182,24 @@ class Applicatie(Navigation):
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
 
+
+
 class Name(Navigation):
     def __init__(self, parent, controller):
         Navigation.__init__(self, parent, controller)
         self.controller = controller
         # controller = self van client
         self.buttonName.configure(bg=button_active)
+        input_lbl = Label(self.frame, text='Name', bg=light, fg='black', anchor="w")
+        input_lbl.place(relx=0.3, rely=0.06, relwidth=0.05, relheight=0.05)
+        self.input = Entry(self.frame, fg='black', bg=dark, bd=0, selectbackground=dark)
+        self.input.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
 
-        title = Label(self.frame, text='Search animal by name', bg=light, fg='black')
-        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+        self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
+        self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
+
+    def submit(self):
+        pass
 
 
 class Breed(Navigation):
@@ -183,10 +208,23 @@ class Breed(Navigation):
         self.controller = controller
         # controller = self van client
         self.buttonBreed.configure(bg=button_active)
+        print("sending request breeddropdown")
+        self.controller.sendMessageToServer("BREEDDROPDOWN")
+        print("waiting for answer ... ")
+        choices = self.controller.choicesBreedData
+        while (choices == None):
+            time.sleep(0.3)
+            choices = self.controller.choicesBreedData
+        print("choices")
+        print(choices)
+        BreedDropdown =OptionMenu(self.frame, StringVar(self.frame), *choices)
+        BreedDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
 
-        title = Label(self.frame, text='Search animal by breed', bg=light, fg='black')
-        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+        self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
+        self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
+    def submit(self):
+        pass
 
 class Color(Navigation):
     def __init__(self, parent, controller):
@@ -195,8 +233,23 @@ class Color(Navigation):
         # controller = self van client
         self.buttonColor.configure(bg=button_active)
 
-        title = Label(self.frame, text='Search animal by color', bg=light, fg='black')
-        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+        print("sending request colordropdown")
+        self.controller.sendMessageToServer("COLORDROPDOWN")
+        print("waiting for answer ... ")
+        choices = self.controller.choicesColorData
+        while (choices == None):
+            time.sleep(0.3)
+            choices = self.controller.choicesColorData
+        print("choices")
+        print(choices)
+        ColorDropdown = OptionMenu(self.frame, StringVar(self.frame), *choices)
+        ColorDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+
+        self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
+        self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
+
+    def submit(self):
+        pass
 
 
 class Age(Navigation):
@@ -205,9 +258,23 @@ class Age(Navigation):
         self.controller = controller
         # controller = self van client
         self.buttonAge.configure(bg=button_active)
+        print("sending request agedropdown")
+        self.controller.sendMessageToServer("AGEDROPDOWN")
+        print("waiting for answer ... ")
+        choices = self.controller.choicesAgeData
+        while (choices == None):
+            time.sleep(0.3)
+            choices = self.controller.choicesAgeData
+        print("choices")
+        print(choices)
+        AgeDropdown = OptionMenu(self.frame, StringVar(self.frame), *choices)
+        AgeDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
 
-        title = Label(self.frame, text='Search animal by age', bg=light, fg='black')
-        title.place(relx=0.1, rely=0.08, relwidth=0.8)
+        self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0,command=lambda: self.submit())
+        self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
+
+    def submit(self):
+        pass
 
 
 class Outcome(Navigation):
@@ -228,7 +295,6 @@ class Outcome(Navigation):
             outcomeList = self.controller.outcometypedata
             while (outcomeList == None):
                 time.sleep(0.3)
-                print("loop")
                 outcomeList = self.controller.outcometypedata
             figureOutcome = plt.figure(figsize=(6, 6))
             plt.title("Outcome")
