@@ -7,7 +7,7 @@ from clienthandler import ClientHandler
 
 logging.basicConfig(level=logging.INFO)
 
-clients = set()
+
 
 class AnimalShelterServer(threading.Thread):
     def __init__(self, host, port, messages_queue):
@@ -17,6 +17,7 @@ class AnimalShelterServer(threading.Thread):
         self.port = port
         self.messages_queue = messages_queue
         self.user_storage = PickleRepo()
+        self.clients = set()
 
     @property
     def is_connected(self):
@@ -49,7 +50,8 @@ class AnimalShelterServer(threading.Thread):
                 self.user_storage = PickleRepo()
                 clh = ClientHandler(clientsocket, self.messages_queue, addr, self.user_storage)
                 clh.start()
-                clients.add(clh)
+                self.clients.add(clh)
+                print(clh)
                 self.print_log_info_gui("Current Thread count: %i." % threading.active_count())
 
         except Exception as ex:
@@ -59,9 +61,11 @@ class AnimalShelterServer(threading.Thread):
 
     def send_alert(self):
         print("I'm inside the server.py sending alerts")
-        for clh in clients:
+        for clh in self.clients:
+            print(clh)
             if clh.is_connected == True:
-                clh.send_alert()
+                alertmessage = "testmessage"
+                clh.send_alert(alertmessage)
 
     def print_user_info_gui(self, info):
         print(info)
