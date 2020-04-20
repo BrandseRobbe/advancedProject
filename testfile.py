@@ -5,6 +5,7 @@ import jsonpickle
 
 from Models.User import User
 
+
 # reg = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,40}$"
 #
 # # compiling regex
@@ -19,13 +20,8 @@ from Models.User import User
 # else:
 #     print("nope")
 
-
-user0 = User("name", "nickname", "test@mail.il",  "Azerty_8")
-# user1 = User("name", "nickname", "test@mail.il",  "Azerty_8")
-# user2 = User("name", "nickname", "test@mail.il",  "Azerty_8")
+# user0 = User("name", "nickname", "test@mail.il",  "Azerty_8")
 # print(user0.password)
-# print(user2.password)
-# print(user1.password)
 
 # gepickled = jsonpickle.encode(user)
 # testdict = {"type": "test", "value": gepickled}
@@ -39,8 +35,6 @@ user0 = User("name", "nickname", "test@mail.il",  "Azerty_8")
 # print(type(pickle))
 # ontpickled = jsonpickle.decode(pickle)
 # print(ontpickled.email)
-
-
 
 
 # pickle = PickleRepo()
