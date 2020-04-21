@@ -123,28 +123,26 @@ class ClientHandler(threading.Thread):
 
     def get_animal_by_breed(self, search):
         df = pd.read_csv("data/train.csv")
-        animal_breed = df.loc[df['Breed'] == search]
-        jsonBreed = json.dumps(animal_breed)
-        self.in_out_clh.write(jsonpickle.encode(jsonBreed) + "\n")
-        self.in_out_clh.flush()
+        animal_breed = df[["Name","AgeuponOutcome","Color"]].loc[df['Breed'] == search]
+        jsonBreed = json.dumps(animal_breed.values.tolist())
+        self.sendMessageToClient("ANIMALBREED", jsonBreed)
         message = {"type": "logdata", "data": "Sending animals by breed back"}
         self.messages_queue.put("%s" % message)
 
     def get_animal_by_color(self, search):
         df = pd.read_csv("data/train.csv")
-        animal_color = df.loc[df['Color'] == search]
-        jsonColor = json.dumps(animal_color)
-        self.in_out_clh.write(jsonpickle.encode(jsonColor) + "\n")
-        self.in_out_clh.flush()
+        animal_color = df[["AgeuponOutcome","Breed"]].loc[df['Color'] == search]
+        jsonColor = json.dumps(animal_color.values.tolist())
+        self.sendMessageToClient("ANIMALCOLOR",jsonColor)
         message = {"type": "logdata", "data": "Sending animals by color back"}
         self.messages_queue.put("%s" % message)
 
     def get_animal_by_age(self, search):
         df = pd.read_csv("data/train.csv")
-        animal_age = df.loc[df['Age'] == search]
-        jsonAge = json.dumps(animal_age)
-        self.in_out_clh.write(jsonpickle.encode(jsonAge) + "\n")
-        self.in_out_clh.flush()
+        animal_age = df[["Color","Breed"]].loc[df['AgeuponOutcome'] == search]
+        jsonAge = json.dumps(animal_age.values.tolist())
+        print(jsonAge)
+        self.sendMessageToClient("ANIMALAGE", jsonAge)
         message = {"type": "logdata", "data": "Sending animals by age back"}
         self.messages_queue.put("%s" % message)
 
@@ -168,7 +166,7 @@ class ClientHandler(threading.Thread):
             user = jsonpickle.decode(user)
             if user.email == client.email and user.password == client.password:
                 validuser = True
-                print('login succesufull')
+                print('login succesfull')
                 self.client = user
                 self.show_client_servergui()
                 break

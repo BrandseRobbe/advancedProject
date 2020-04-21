@@ -12,7 +12,10 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from Models.User import User
 import tkinter.font as tkFont
+from tkinter import ttk
 import time
+from csv import reader
+import pandas as pd
 
 light = "#f0f6ff"
 button = "#d6e7ff"
@@ -27,6 +30,9 @@ class Client(Tk):
         self.choicesBreedData = None
         self.choicesColorData = None
         self.choicesAgeData = None
+        self.color = None
+        self.age = None
+        self.breed = None
         # Setup frame
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -91,6 +97,21 @@ class Client(Tk):
                 self.handleColorDropdown(messagevalue)
             elif messagetype =="AGEDROPDOWN":
                 self.handleAgeDropdown(messagevalue)
+            elif messagetype =="ANIMALCOLOR":
+                self.handleColor(messagevalue)
+            elif messagetype =="ANIMALAGE":
+                self.handleAge(messagevalue)
+            elif messagetype =="ANIMALBREED":
+                self.handleBreed(messagevalue)
+
+    def handleBreed(self, value):
+        self.breed = value
+
+    def handleAge(self, value):
+        self.age = value
+
+    def handleColor(self, value):
+        self.color = value
 
     def handleAgeDropdown(self, value):
         self.choicesAgeData = value
@@ -191,7 +212,7 @@ class Name(Navigation):
         # controller = self van client
         self.buttonName.configure(bg=button_active)
         input_lbl = Label(self.frame, text='Name', bg=light, fg='black', anchor="w")
-        input_lbl.place(relx=0.3, rely=0.06, relwidth=0.05, relheight=0.05)
+        input_lbl.place(relx=0.3, rely=0.06 , relwidth=0.05, relheight=0.05)
         self.input = Entry(self.frame, fg='black', bg=dark, bd=0, selectbackground=dark)
         self.input.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
 
@@ -217,14 +238,26 @@ class Breed(Navigation):
             choices = self.controller.choicesBreedData
         print("choices")
         print(choices)
-        BreedDropdown =OptionMenu(self.frame, StringVar(self.frame), *choices)
-        BreedDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+        self.BreedDropdown = ttk.Combobox(self.frame, width=15, state="readonly")
+        self.BreedDropdown['values'] = choices
+        self.BreedDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
 
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
     def submit(self):
-        pass
+        self.controller.sendMessageToServer("ANIMALBREED", self.BreedDropdown.get())
+        breed = self.controller.breed
+        while (breed == None):
+            time.sleep(0.3)
+            breed = self.controller.breed
+        breed = json.loads(breed)
+        self.list = Listbox(self.frame)
+        teller = 0
+        for item in breed:
+            self.list.insert(teller, "%s          -          %s          -          %s" %(item[0], item[1], item[2]))
+            teller += 1
+        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
 
 class Color(Navigation):
     def __init__(self, parent, controller):
@@ -242,15 +275,26 @@ class Color(Navigation):
             choices = self.controller.choicesColorData
         print("choices")
         print(choices)
-        ColorDropdown = OptionMenu(self.frame, StringVar(self.frame), *choices)
-        ColorDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+        self.ColorDropdown = ttk.Combobox(self.frame, width=15, state="readonly")
+        self.ColorDropdown['values'] = choices
+        self.ColorDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
 
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
     def submit(self):
-        pass
-
+        self.controller.sendMessageToServer("ANIMALCOLOR", self.ColorDropdown.get())
+        color = self.controller.color
+        while (color == None):
+            time.sleep(0.3)
+            color = self.controller.color
+        color = json.loads(color)
+        self.list = Listbox(self.frame)
+        teller = 0
+        for item in color:
+            self.list.insert(teller, "%s          -          %s" % (item[0], item[1]))
+            teller +=1
+        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
 
 class Age(Navigation):
     def __init__(self, parent, controller):
@@ -267,14 +311,28 @@ class Age(Navigation):
             choices = self.controller.choicesAgeData
         print("choices")
         print(choices)
-        AgeDropdown = OptionMenu(self.frame, StringVar(self.frame), *choices)
-        AgeDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+        self.AgeDropdown = ttk.Combobox(self.frame, width=15, state="readonly")
+        self.AgeDropdown['values'] = choices
+        self.AgeDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
 
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0,command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
     def submit(self):
-        pass
+        self.controller.sendMessageToServer("ANIMALAGE", self.AgeDropdown.get())
+        age = self.controller.age
+        while (age == None):
+            time.sleep(0.3)
+            age = self.controller.age
+        age = json.loads(age)
+        print("age")
+        print(age)
+        self.list = Listbox(self.frame)
+        teller = 0
+        for item in age:
+            self.list.insert(teller, "%s          -          %s" % (item[0], item[1]))
+            teller += 1
+        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
 
 
 class Outcome(Navigation):
