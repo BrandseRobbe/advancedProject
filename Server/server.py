@@ -59,12 +59,10 @@ class AnimalShelterServer(threading.Thread):
             logging.error("Foutmelding: %s" % ex)
             self.print_log_info_gui("Serversocket afgesloten")
 
-    def send_alert(self):
+    def send_alert(self, alertmessage):
         print("I'm inside the server.py sending alerts")
         for clh in self.clients:
-            print(clh)
             if clh.is_connected == True:
-                alertmessage = "testmessage"
                 clh.send_alert(alertmessage)
 
     def print_user_info_gui(self, info):

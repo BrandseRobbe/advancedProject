@@ -89,7 +89,16 @@ class ServerWindow(Frame):
 
     def send_alert(self):
         print("Sending alerts to clients")
-        self.server.send_alert()
+        t = Thread(target=self.send_alert_window)
+        t.start()
+
+    def send_alert_window(self):
+        # self.server.send_alert()
+        root = Tk()
+        root.geometry("300x100")
+        gui_server = SendNotificationWindow(self.server.send_alert, root)
+        # root.protocol("WM_DELETE_WINDOW", callback)
+        root.mainloop()
 
     def start_stop_server(self):
         print("serverstatus: %s" % self.server.is_connected)
@@ -100,3 +109,23 @@ class ServerWindow(Frame):
             self.server.init_server()
             self.server.start()
             self.btn_text.set("Stop server")
+
+
+class SendNotificationWindow(Frame):
+    def __init__(self, callback, master=None):
+        Frame.__init__(self, master)
+        self.master = master
+        self.init_window()
+        self.callback = callback
+
+    def init_window(self):
+        self.master.title("Alert")
+        self.pack(fill=BOTH, expand=1)
+        Label(self, text="Send alert to all online users: ").grid(row=0, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+        self.alertInput = Entry(self, text="testtext")
+        self.alertInput.grid(row=1, column=0)
+        Button(self, text="Send all online users", command=lambda: self.sendAlert()).grid(row=2, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+
+    def sendAlert(self):
+        self.callback(self.alertInput.get())
+        self.master.destroy()
