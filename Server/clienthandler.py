@@ -124,13 +124,13 @@ class ClientHandler(threading.Thread):
             print("De naam zit niet in de dataset")
             animal_name = "No animals found"
             self.sendMessageToClient("ANIMALNAME", animal_name)
-            
+
         message = {"type": "logdata", "data": "Sending animals by name back"}
         self.messages_queue.put("%s" % message)
 
     def get_animal_by_breed(self, search):
         df = pd.read_csv("data/train.csv")
-        animal_breed = df[["Name","AgeuponOutcome","Color"]].loc[df['Breed'] == search]
+        animal_breed = df[["Name", "AgeuponOutcome", "Color"]].loc[df['Breed'] == search]
         jsonBreed = json.dumps(animal_breed.values.tolist())
         self.sendMessageToClient("ANIMALBREED", jsonBreed)
         message = {"type": "logdata", "data": "Sending animals by breed back"}
@@ -138,15 +138,15 @@ class ClientHandler(threading.Thread):
 
     def get_animal_by_color(self, search):
         df = pd.read_csv("data/train.csv")
-        animal_color = df[["AgeuponOutcome","Breed"]].loc[df['Color'] == search]
+        animal_color = df[["AgeuponOutcome", "Breed"]].loc[df['Color'] == search]
         jsonColor = json.dumps(animal_color.values.tolist())
-        self.sendMessageToClient("ANIMALCOLOR",jsonColor)
+        self.sendMessageToClient("ANIMALCOLOR", jsonColor)
         message = {"type": "logdata", "data": "Sending animals by color back"}
         self.messages_queue.put("%s" % message)
 
     def get_animal_by_age(self, search):
         df = pd.read_csv("data/train.csv")
-        animal_age = df[["Color","Breed"]].loc[df['AgeuponOutcome'] == search]
+        animal_age = df[["Color", "Breed"]].loc[df['AgeuponOutcome'] == search]
         jsonAge = json.dumps(animal_age.values.tolist())
         print(jsonAge)
         self.sendMessageToClient("ANIMALAGE", jsonAge)
@@ -155,11 +155,24 @@ class ClientHandler(threading.Thread):
 
     def register_client(self, messagevalue):
         try:
-            self.user_storage.updateFile(messagevalue)
-            self.sendMessageToClient("REGISTER_RESPONSE", True)
-            print("register succesfull")
-            self.client = jsonpickle.decode(messagevalue)
-            self.show_client_servergui()
+            #first check if email already in use
+            userobj = jsonpickle.decode(messagevalue)
+            exists = False
+            for user in self.user_storage.fileData:
+                user = jsonpickle.decode(user)
+                if user.email == userobj.email:
+                    exists = True
+                    break
+            if not exists:
+                # update storage
+                self.user_storage.updateFile(messagevalue)
+                self.sendMessageToClient("REGISTER_RESPONSE", True)
+                print("register succesfull")
+                self.client = jsonpickle.decode(messagevalue)
+                self.show_client_servergui()
+            else:
+                self.sendMessageToClient("REGISTER_RESPONSE", False)
+                print("email already in use")
         except Exception as exc:
             print(exc)
             self.sendMessageToClient("REGISTER_RESPONSE", False)
@@ -187,7 +200,7 @@ class ClientHandler(threading.Thread):
         self.messages_queue.put("%s" % message)
 
     def send_alert(self, alertmessage):
-        print("SENDING ALERT")
+        print("SENDING ALERT %s" % alertmessage)
         self.sendMessageToClient("ALERT", alertmessage)
         logmessage = {"type": "logdata", "data": "Sending alert %s" % alertmessage}
         self.messages_queue.put("%s" % logmessage)

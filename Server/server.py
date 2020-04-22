@@ -51,7 +51,6 @@ class AnimalShelterServer(threading.Thread):
                 clh = ClientHandler(clientsocket, self.messages_queue, addr, self.user_storage)
                 clh.start()
                 self.clients.add(clh)
-                print(clh)
                 self.print_log_info_gui("Current Thread count: %i." % threading.active_count())
 
         except Exception as ex:
