@@ -113,6 +113,7 @@ class ClientHandler(threading.Thread):
 
     def get_animal_by_name(self, search):
         df = pd.read_csv("data/train.csv")
+        search = search.lower().capitalize()
         names = df['Name']
         if search in names.values.tolist():
             print("De naam zit in de dataset")
