@@ -22,6 +22,7 @@ button_active = "#b3d2ff"
 pressed_button = "#b3d2ff"
 dark = "#adceff"
 
+
 class Client(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
@@ -91,19 +92,19 @@ class Client(Tk):
                 self.handleAlert(messagevalue)
             elif messagetype == "OUTCOMETYPE":
                 self.handleOutcometype(messagevalue)
-            elif messagetype =="BREEDDROPDOWN":
+            elif messagetype == "BREEDDROPDOWN":
                 self.handleBreedDropdown(messagevalue)
-            elif messagetype =="COLORDROPDOWN":
+            elif messagetype == "COLORDROPDOWN":
                 self.handleColorDropdown(messagevalue)
-            elif messagetype =="AGEDROPDOWN":
+            elif messagetype == "AGEDROPDOWN":
                 self.handleAgeDropdown(messagevalue)
-            elif messagetype =="ANIMALCOLOR":
+            elif messagetype == "ANIMALCOLOR":
                 self.handleColor(messagevalue)
-            elif messagetype =="ANIMALAGE":
+            elif messagetype == "ANIMALAGE":
                 self.handleAge(messagevalue)
-            elif messagetype =="ANIMALBREED":
+            elif messagetype == "ANIMALBREED":
                 self.handleBreed(messagevalue)
-            elif messagetype =="ANIMALNAME":
+            elif messagetype == "ANIMALNAME":
                 self.handleName(messagevalue)
 
     def handleName(self, value):
@@ -122,7 +123,7 @@ class Client(Tk):
     def handleAgeDropdown(self, value):
         self.choicesAgeData = value
 
-    def handleColorDropdown(self,value):
+    def handleColorDropdown(self, value):
         self.choicesColorData = value
 
     def handleBreedDropdown(self, value):
@@ -179,7 +180,7 @@ class Navigation(Frame):
         self.buttonApplicatie = Button(self.frame, text="AnimalShelter", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Applicatie))
         self.buttonApplicatie.place(relx=0.0, rely=0.0, relheight=0.05, relwidth=0.142857)
         self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Outcome))
-        #self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.navigation("outcometype"))
+        # self.buttonOutcome = Button(self.frame, text="Get outcome", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.navigation("outcometype"))
         self.buttonOutcome.place(relx=0.142857, rely=0.0, relheight=0.05, relwidth=0.142857)
         self.buttonName = Button(self.frame, text="Search animal by name", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Name))
         self.buttonName.place(relx=0.285714, rely=0.0, relheight=0.05, relwidth=0.142857)
@@ -209,8 +210,6 @@ class Applicatie(Navigation):
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
 
-
-
 class Name(Navigation):
     def __init__(self, parent, controller):
         Navigation.__init__(self, parent, controller)
@@ -218,9 +217,9 @@ class Name(Navigation):
         # controller = self van client
         self.buttonName.configure(bg=button_active)
         input_lbl = Label(self.frame, text='Name', bg=light, fg='black', anchor="w")
-        input_lbl.place(relx=0.3, rely=0.06 , relwidth=0.05, relheight=0.05)
+        input_lbl.place(relx=0.3, rely=0.06, relwidth=0.05, relheight=0.05)
         self.input = Entry(self.frame, fg='black', bg=dark, bd=0, selectbackground=dark)
-        self.input.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+        self.input.place(relx=0.3, rely=0.1, relheight=0.05, relwidth=0.30)
 
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
@@ -229,7 +228,7 @@ class Name(Navigation):
         self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
 
     def submit(self):
-        self.list.delete(0,END)
+        self.list.delete(0, END)
         self.controller.sendMessageToServer("ANIMALNAME", self.input.get())
         name = self.controller.name
         while (name == None):
@@ -237,7 +236,7 @@ class Name(Navigation):
             name = self.controller.name
 
         if name == "No animals found":
-            self.list.insert(0,"No animals found please try another name.")
+            self.list.insert(0, "No animals found please try another name.")
         else:
             name = json.loads(name)
             teller = 0
@@ -245,7 +244,6 @@ class Name(Navigation):
                 self.list.insert(teller, "%s          -          %s          -          %s" % (item[0], item[1], item[2]))
                 teller += 1
         self.controller.name = None
-
 
 
 class Breed(Navigation):
@@ -265,7 +263,7 @@ class Breed(Navigation):
         print(choices)
         self.BreedDropdown = ttk.Combobox(self.frame, width=15, state="readonly")
         self.BreedDropdown['values'] = choices
-        self.BreedDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+        self.BreedDropdown.place(relx=0.3, rely=0.1, relheight=0.05, relwidth=0.30)
 
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
@@ -274,7 +272,7 @@ class Breed(Navigation):
         self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
 
     def submit(self):
-        self.list.delete(0,END)
+        self.list.delete(0, END)
         self.controller.sendMessageToServer("ANIMALBREED", self.BreedDropdown.get())
         breed = self.controller.breed
         while (breed == None):
@@ -283,9 +281,10 @@ class Breed(Navigation):
         breed = json.loads(breed)
         teller = 0
         for item in breed:
-            self.list.insert(teller, "%s          -          %s          -          %s" %(item[0], item[1], item[2]))
+            self.list.insert(teller, "%s          -          %s          -          %s" % (item[0], item[1], item[2]))
             teller += 1
-        self.controller.breed= None
+        self.controller.breed = None
+
 
 class Color(Navigation):
     def __init__(self, parent, controller):
@@ -305,7 +304,7 @@ class Color(Navigation):
         print(choices)
         self.ColorDropdown = ttk.Combobox(self.frame, width=15, state="readonly")
         self.ColorDropdown['values'] = choices
-        self.ColorDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+        self.ColorDropdown.place(relx=0.3, rely=0.1, relheight=0.05, relwidth=0.30)
 
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
@@ -314,7 +313,7 @@ class Color(Navigation):
         self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
 
     def submit(self):
-        self.list.delete(0,END)
+        self.list.delete(0, END)
         self.controller.sendMessageToServer("ANIMALCOLOR", self.ColorDropdown.get())
         color = self.controller.color
         while (color == None):
@@ -324,8 +323,9 @@ class Color(Navigation):
         teller = 0
         for item in color:
             self.list.insert(teller, "%s          -          %s" % (item[0], item[1]))
-            teller +=1
+            teller += 1
         self.controller.color = None
+
 
 class Age(Navigation):
     def __init__(self, parent, controller):
@@ -344,16 +344,16 @@ class Age(Navigation):
         print(choices)
         self.AgeDropdown = ttk.Combobox(self.frame, width=15, state="readonly")
         self.AgeDropdown['values'] = choices
-        self.AgeDropdown.place(relx=0.3, rely=0.1, relheight=0.05,relwidth=0.30)
+        self.AgeDropdown.place(relx=0.3, rely=0.1, relheight=0.05, relwidth=0.30)
 
-        self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0,command=lambda: self.submit())
+        self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
         self.list = Listbox(self.frame)
         self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
 
     def submit(self):
-        self.list.delete(0,END)
+        self.list.delete(0, END)
         self.controller.sendMessageToServer("ANIMALAGE", self.AgeDropdown.get())
         age = self.controller.age
         while (age == None):

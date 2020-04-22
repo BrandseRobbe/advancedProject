@@ -95,7 +95,7 @@ class ServerWindow(Frame):
     def send_alert_window(self):
         # self.server.send_alert()
         root = Tk()
-        root.geometry("300x100")
+        # root.geometry("300x100")
         gui_server = SendNotificationWindow(self.server.send_alert, root)
         # root.protocol("WM_DELETE_WINDOW", callback)
         root.mainloop()
