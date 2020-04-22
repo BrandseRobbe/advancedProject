@@ -1,6 +1,5 @@
 import threading
 import jsonpickle
-import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 import json
@@ -114,10 +113,17 @@ class ClientHandler(threading.Thread):
 
     def get_animal_by_name(self, search):
         df = pd.read_csv("data/train.csv")
-        animal_name = df.loc[df['Name'] == search]
-        jsonName = json.dumps(animal_name)
-        self.in_out_clh.write(jsonpickle.encode(jsonName) + "\n")
-        self.in_out_clh.flush()
+        names = df['Name']
+        if search in names.values.tolist():
+            print("De naam zit in de dataset")
+            animal_name = df[["Breed", "AgeuponOutcome", "Color"]].loc[df['Name'] == search]
+            jsonBreed = json.dumps(animal_name.values.tolist())
+            self.sendMessageToClient("ANIMALNAME", jsonBreed)
+        else:
+            print("De naam zit niet in de dataset")
+            animal_name = "No animals found"
+            self.sendMessageToClient("ANIMALNAME", animal_name)
+            
         message = {"type": "logdata", "data": "Sending animals by name back"}
         self.messages_queue.put("%s" % message)
 

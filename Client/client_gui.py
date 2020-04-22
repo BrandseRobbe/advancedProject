@@ -5,7 +5,6 @@ from tkinter import *
 from tkinter import messagebox
 import jsonpickle
 import matplotlib.pyplot as plt
-import seaborn as sns
 import json
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -33,6 +32,7 @@ class Client(Tk):
         self.color = None
         self.age = None
         self.breed = None
+        self.name = None
         # Setup frame
         container = Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -103,6 +103,12 @@ class Client(Tk):
                 self.handleAge(messagevalue)
             elif messagetype =="ANIMALBREED":
                 self.handleBreed(messagevalue)
+            elif messagetype =="ANIMALNAME":
+                self.handleName(messagevalue)
+
+    def handleName(self, value):
+        print(value)
+        self.name = value
 
     def handleBreed(self, value):
         self.breed = value
@@ -219,8 +225,27 @@ class Name(Navigation):
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
+        self.list = Listbox(self.frame)
+        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
+
     def submit(self):
-        pass
+        self.list.delete(0,END)
+        self.controller.sendMessageToServer("ANIMALNAME", self.input.get())
+        name = self.controller.name
+        while (name == None):
+            time.sleep(0.3)
+            name = self.controller.name
+
+        if name == "No animals found":
+            self.list.insert(0,"No animals found please try another name.")
+        else:
+            name = json.loads(name)
+            teller = 0
+            for item in name:
+                self.list.insert(teller, "%s          -          %s          -          %s" % (item[0], item[1], item[2]))
+                teller += 1
+        self.controller.name = None
+
 
 
 class Breed(Navigation):
@@ -245,19 +270,22 @@ class Breed(Navigation):
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
+        self.list = Listbox(self.frame)
+        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
+
     def submit(self):
+        self.list.delete(0,END)
         self.controller.sendMessageToServer("ANIMALBREED", self.BreedDropdown.get())
         breed = self.controller.breed
         while (breed == None):
             time.sleep(0.3)
             breed = self.controller.breed
         breed = json.loads(breed)
-        self.list = Listbox(self.frame)
         teller = 0
         for item in breed:
             self.list.insert(teller, "%s          -          %s          -          %s" %(item[0], item[1], item[2]))
             teller += 1
-        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
+        self.controller.breed= None
 
 class Color(Navigation):
     def __init__(self, parent, controller):
@@ -282,19 +310,22 @@ class Color(Navigation):
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
+        self.list = Listbox(self.frame)
+        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
+
     def submit(self):
+        self.list.delete(0,END)
         self.controller.sendMessageToServer("ANIMALCOLOR", self.ColorDropdown.get())
         color = self.controller.color
         while (color == None):
             time.sleep(0.3)
             color = self.controller.color
         color = json.loads(color)
-        self.list = Listbox(self.frame)
         teller = 0
         for item in color:
             self.list.insert(teller, "%s          -          %s" % (item[0], item[1]))
             teller +=1
-        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
+        self.controller.color = None
 
 class Age(Navigation):
     def __init__(self, parent, controller):
@@ -318,7 +349,11 @@ class Age(Navigation):
         self.buttonSubmit = Button(self.frame, text="Search", bg=button, activebackground=pressed_button, borderwidth=0,command=lambda: self.submit())
         self.buttonSubmit.place(relx=0.60, rely=0.1, relheight=0.05, relwidth=0.10)
 
+        self.list = Listbox(self.frame)
+        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
+
     def submit(self):
+        self.list.delete(0,END)
         self.controller.sendMessageToServer("ANIMALAGE", self.AgeDropdown.get())
         age = self.controller.age
         while (age == None):
@@ -327,12 +362,11 @@ class Age(Navigation):
         age = json.loads(age)
         print("age")
         print(age)
-        self.list = Listbox(self.frame)
         teller = 0
         for item in age:
             self.list.insert(teller, "%s          -          %s" % (item[0], item[1]))
             teller += 1
-        self.list.place(relx=0.25, rely=0.2, relheight=0.75, relwidth=0.50)
+        self.controller.age = None
 
 
 class Outcome(Navigation):
