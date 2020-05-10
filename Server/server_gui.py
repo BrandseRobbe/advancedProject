@@ -11,9 +11,11 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import ttk
 from matplotlib.figure import Figure
-import pandas as pd
 
 from server import AnimalShelterServer
+
+import matplotlib
+matplotlib.use('Agg')
 
 
 class ServerWindow(Frame):
@@ -124,7 +126,7 @@ class ServerWindow(Frame):
 
     def getmostsearched(self):
         print("Getting most searched")
-        t = Thread(target=self.getmostsearchedwindow())
+        t = Thread(target=self.getmostsearchedwindow)
         t.start()
 
     def getUserData(self):
