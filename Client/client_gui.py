@@ -173,6 +173,17 @@ class Client(Tk):
         except Exception as ex:
             logging.error("Error: %s" % ex)
 
+    def prettyTable(self, table):
+        df = pd.DataFrame(table)
+        max_len = [df[col].str.len().max() for col in df.columns]
+        output = []
+        for row in table:
+            rowstring = ""
+            for cel in row:
+                rowstring += cel + "_" * (max_len[row.index(cel)] - len(cel)) + " | "
+            output.append(rowstring[:-2])
+        return output
+
     # --- Closing window ---
     def __del__(self):
         self.in_out_server.write("CLOSE\n")
@@ -373,12 +384,17 @@ class Age(Navigation):
             time.sleep(0.3)
             age = self.controller.age
         age = json.loads(age)
-        print("age")
-        print(age)
-        teller = 0
-        for item in age:
-            self.list.insert(teller, "%s          -          %s" % (item[0], item[1]))
-            teller += 1
+        #
+        # print("age")
+        # print(age)
+        # teller = 0
+        # for item in age:
+        #     self.list.insert(teller, "%s          -          %s" % (item[0], item[1]))
+        #     teller += 1
+        table = self.controller.prettyTable(age)
+        for row in table:
+            self.list.insert(END, row)
+            print(row)
         self.controller.age = None
 
 
