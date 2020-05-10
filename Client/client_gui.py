@@ -402,7 +402,6 @@ class Outcome(Navigation):
             plt.gcf().canvas.draw()
             histogram = FigureCanvasTkAgg(figureOutcome, self)
             histogram.get_tk_widget().place(relx=0.05, rely=0.15, relheight=0.75, relwidth=0.90)
-            print("Done!")
 
         except Exception as ex:
             logging.error("Foutmelding: %s" % ex)

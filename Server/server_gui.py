@@ -5,8 +5,12 @@ import socket
 from queue import Queue
 from threading import Thread
 from tkinter import *
-
+import pandas as pd
 import jsonpickle
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from tkinter import ttk
+from matplotlib.figure import Figure
 
 from server import AnimalShelterServer
 
@@ -99,9 +103,6 @@ class ServerWindow(Frame):
                 loop = False
         print("queue stop")
 
-    def getmostsearched(self):
-        pass
-
     def init_messages_queue(self):
         self.messages_queue = Queue()
         t = Thread(target=self.print_messsages_from_queue)
@@ -120,6 +121,18 @@ class ServerWindow(Frame):
         # root.protocol("WM_DELETE_WINDOW", callback)
         root.mainloop()
 
+    def getmostsearched(self):
+        print("Getting most searched")
+        t = Thread(target=self.getmostsearchedwindow())
+        t.start()
+
+
+    def getmostsearchedwindow(self):
+        root = Tk()
+        root.geometry("1900x1080")
+        gui_server = getmostsearchedWindow(self.server.getmostsearched, root)
+        # root.protocol("WM_DELETE_WINDOW", callback)
+        root.mainloop()
     def start_stop_server(self):
         print("serverstatus: %s" % self.server.is_connected)
         if self.server.is_connected:
@@ -130,6 +143,79 @@ class ServerWindow(Frame):
             self.server.start()
             self.btn_text.set("Stop server")
 
+class getmostsearchedWindow(Frame):
+    def __init__(self, callback, master=None):
+        Frame.__init__(self, master)
+        self.master = master
+        self.init_window()
+        self.callback = callback
+        self.getMostSearchedBreed()
+        self.getMostSearchedAge()
+        self.getMostSearchedColor()
+        self.getMostSearchedName()
+
+    def init_window(self):
+        self.master.title("Get most searched")
+        self.pack(fill=BOTH, expand=1)
+
+
+
+    def getMostSearchedBreed(self):
+        dataset = pd.read_csv("searches.csv")
+        results = dataset[dataset['messagetype'] == "ANIMALBREED"]
+        mostsearched = results["messagevalue"].value_counts()[:5].index.tolist()
+        results = results[results['messagevalue'].isin(mostsearched)]
+
+        figureBreed = plt.figure(figsize=(6, 6))
+        plt.title("Get Most Searched Breed")
+        plt.hist(results["messagevalue"])
+        # figureOutcome.autofmt_xdate(rotation=90)
+        plt.gcf().canvas.draw()
+        histogram = FigureCanvasTkAgg(figureBreed, self)
+        histogram.get_tk_widget().place(relx=0.05, rely=0.05, relheight=0.40, relwidth=0.40)
+
+
+    def getMostSearchedAge(self):
+        dataset = pd.read_csv("searches.csv")
+        results = dataset[dataset['messagetype'] == "ANIMALAGE"]
+        mostsearched = results["messagevalue"].value_counts()[:5].index.tolist()
+        results = results[results['messagevalue'].isin(mostsearched)]
+
+        figureAge = plt.figure(figsize=(6, 6))
+        plt.title("Get Most Searched Breed")
+        plt.hist(results["messagevalue"])
+        # figureOutcome.autofmt_xdate(rotation=90)
+        plt.gcf().canvas.draw()
+        histogram = FigureCanvasTkAgg(figureAge, self)
+        histogram.get_tk_widget().place(relx=0.55, rely=0.05, relheight=0.40, relwidth=0.40)
+
+    def getMostSearchedColor(self):
+        dataset = pd.read_csv("searches.csv")
+        results = dataset[dataset['messagetype'] == "ANIMALCOLOR"]
+        mostsearched = results["messagevalue"].value_counts()[:5].index.tolist()
+        results = results[results['messagevalue'].isin(mostsearched)]
+
+        figureColor = plt.figure(figsize=(6, 6))
+        plt.title("Get Most Searched Breed")
+        plt.hist(results["messagevalue"])
+        # figureOutcome.autofmt_xdate(rotation=90)
+        plt.gcf().canvas.draw()
+        histogram = FigureCanvasTkAgg(figureColor, self)
+        histogram.get_tk_widget().place(relx=0.05, rely=0.55, relheight=0.40, relwidth=0.40)
+
+    def getMostSearchedName(self):
+        dataset = pd.read_csv("searches.csv")
+        results = dataset[dataset['messagetype'] == "ANIMALNAME"]
+        mostsearched = results["messagevalue"].value_counts()[:5].index.tolist()
+        results = results[results['messagevalue'].isin(mostsearched)]
+
+        figureName = plt.figure(figsize=(6, 6))
+        plt.title("Get Most Searched Breed")
+        plt.hist(results["messagevalue"])
+        # figureOutcome.autofmt_xdate(rotation=90)
+        plt.gcf().canvas.draw()
+        histogram = FigureCanvasTkAgg(figureName, self)
+        histogram.get_tk_widget().place(relx=0.55, rely=0.55, relheight=0.40, relwidth=0.40)
 
 class SendNotificationWindow(Frame):
     def __init__(self, callback, master=None):
