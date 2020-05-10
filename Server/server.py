@@ -39,7 +39,7 @@ class AnimalShelterServer(threading.Thread):
             self.serversocket.close()
         except Exception:
             print("server stond nog uit")
-            exit()
+            # exit()
 
     def run(self):
         print('def run exectuted')
