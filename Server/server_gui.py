@@ -72,7 +72,7 @@ class ServerWindow(Frame):
     def afsluiten_server(self):
         if self.server is not None:
             self.server.close_server_socket()
-        # del (self.messages_queue)
+        del self.messages_queue
 
     def print_messsages_from_queue(self):
         indexlog = 0
@@ -204,10 +204,12 @@ class getmostsearchedWindow(Frame):
         figureBreed = plt.figure(figsize=(6, 6))
         plt.title("Get Most Searched Breed")
         plt.hist(results["messagevalue"])
+        plt.xticks(rotation=10)
+
         # figureOutcome.autofmt_xdate(rotation=90)
         plt.gcf().canvas.draw()
         histogram = FigureCanvasTkAgg(figureBreed, self)
-        histogram.get_tk_widget().place(relx=0.05, rely=0.05, relheight=0.40, relwidth=0.40)
+        histogram.get_tk_widget().place(relx=0.05, rely=0.05, relheight=0.5, relwidth=0.40)
 
     def getMostSearchedAge(self):
         dataset = pd.read_csv("searches.csv")
