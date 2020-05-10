@@ -1,13 +1,12 @@
-import json
 import logging
 import socket
 import threading
 
+from PickleRepo import PickleRepo
 from clienthandler import ClientHandler
 
 logging.basicConfig(level=logging.INFO)
 
-clients = set()
 
 
 class AnimalShelterServer(threading.Thread):
@@ -16,8 +15,9 @@ class AnimalShelterServer(threading.Thread):
         self.__is_connected = False
         self.host = host
         self.port = port
-        # self.init_server(host, port)                #server niet onmiddellijk initialiseren (via GUI)
         self.messages_queue = messages_queue
+        self.user_storage = PickleRepo()
+        self.clients = set()
 
     @property
     def is_connected(self):
@@ -33,9 +33,13 @@ class AnimalShelterServer(threading.Thread):
         self.print_log_info_gui("START_SERVER")
 
     def close_server_socket(self):
-        self.print_log_info_gui("CLOSE_SERVER")
-        self.__is_connected = False
-        self.serversocket.close()
+        try:
+            self.print_log_info_gui("CLOSE_SERVER")
+            self.__is_connected = False
+            self.serversocket.close()
+        except Exception:
+            print("server stond nog uit")
+            exit()
 
     def run(self):
         print('def run exectuted')
@@ -47,10 +51,10 @@ class AnimalShelterServer(threading.Thread):
                 # self.print_bericht_gui_server("CLIENTINFO: %s" % str(addr))
                 print("addr = %s" % str(addr))
                 print("clientsocket = %s" % clientsocket)
-                self.print_user_info_gui(addr)
-                clh = ClientHandler(clientsocket, self.messages_queue, addr)
+                self.user_storage = PickleRepo()
+                clh = ClientHandler(clientsocket, self.messages_queue, addr, self.user_storage)
                 clh.start()
-                clients.add(clh)
+                self.clients.add(clh)
                 self.print_log_info_gui("Current Thread count: %i." % threading.active_count())
 
         except Exception as ex:
@@ -58,11 +62,15 @@ class AnimalShelterServer(threading.Thread):
             logging.error("Foutmelding: %s" % ex)
             self.print_log_info_gui("Serversocket afgesloten")
 
-    def send_alert(self):
+    def send_alert(self, alertmessage):
         print("I'm inside the server.py sending alerts")
-        for clh in clients:
+        for clh in self.clients:
             if clh.is_connected == True:
-                clh.send_alert()
+                clh.send_alert(alertmessage)
+
+    def getmostsearched(self):
+        print("Getting most searched")
+
 
     def print_user_info_gui(self, info):
         print(info)
