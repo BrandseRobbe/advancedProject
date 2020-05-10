@@ -6,6 +6,8 @@ from queue import Queue
 from threading import Thread
 from tkinter import *
 
+import jsonpickle
+
 from server import AnimalShelterServer
 
 
@@ -16,6 +18,7 @@ class ServerWindow(Frame):
         self.init_window()
         self.init_messages_queue()
         self.init_server()
+        self.loggedInUsers = []
 
     # Creation of init_window
     def init_window(self):
@@ -67,19 +70,33 @@ class ServerWindow(Frame):
         indexlog = 0
         indexuser = 0
         loop = True
-        message = self.messages_queue.get()
+
+        # message = json.loads(message.replace("\'", "\""))
         while loop:
-            message = ast.literal_eval(message)
-            if str(message['type']) == str("userdata"):
-                self.lstClients.insert(indexuser, message["data"])
-                indexuser += 1
-            elif str(message['type']) == str("logdata"):
-                self.lstnumbers.insert(indexlog, message["data"])
-                indexlog += 1
-            elif str(message['type']) == str('stop_message'):
-                loop = False
-            self.messages_queue.task_done()
             message = self.messages_queue.get()
+            print("message queue: %s" % message)
+            message = ast.literal_eval(message)
+
+            messageType = message["type"]
+            messageData = message["data"]
+            if messageType == "userdata":
+                client = jsonpickle.decode(messageData)
+                print("name: %s" % client.name)
+                self.lstClients.insert(len(self.loggedInUsers), client.name)
+                self.loggedInUsers.append(client)
+            elif messageType == "removeUser":
+                client = jsonpickle.decode(messageData)
+                actualclient = None
+                for user in self.loggedInUsers:
+                    if user.email == client.email and user.password == client.password:
+                        actualclient = user
+                self.lstClients.delete(self.loggedInUsers.index(actualclient))
+                self.loggedInUsers.remove(actualclient)
+            elif messageType == "logdata":
+                self.lstnumbers.insert(indexlog, messageData)
+                indexlog += 1
+            elif messageType == "stop_message":
+                loop = False
         print("queue stop")
 
     def init_messages_queue(self):

@@ -65,6 +65,9 @@ class ClientHandler(threading.Thread):
             elif messagetype == "LOGIN_ATTEMPT":
                 self.login_client(messagevalue)
 
+            elif messagetype == "LOGOUT_USER":
+                self.logout_client(messagevalue)
+
         message = {"type": "logdata", "data": "Connection closed: %s" % str(self.address)}
         self.messages_queue.put("%s" % message)
         self.is_connected = False
@@ -155,7 +158,7 @@ class ClientHandler(threading.Thread):
 
     def register_client(self, messagevalue):
         try:
-            #first check if email already in use
+            # first check if email already in use
             userobj = jsonpickle.decode(messagevalue)
             exists = False
             for user in self.user_storage.fileData:
@@ -168,7 +171,7 @@ class ClientHandler(threading.Thread):
                 self.user_storage.updateFile(messagevalue)
                 self.sendMessageToClient("REGISTER_RESPONSE", True)
                 print("register succesfull")
-                self.client = jsonpickle.decode(messagevalue)
+                self.client = userobj
                 self.show_client_servergui()
             else:
                 self.sendMessageToClient("REGISTER_RESPONSE", False)
@@ -193,10 +196,15 @@ class ClientHandler(threading.Thread):
         self.sendMessageToClient("LOGIN_RESPONSE", validuser)
         print("login: %s" % validuser)
 
+    def logout_client(self, messagevalue):
+        print("logging out")
+        message = {"type": "removeUser", "data": messagevalue}
+        self.messages_queue.put("%s" % message)
+
     def show_client_servergui(self):
         message = {"type": "logdata", "data": "User has logged in"}
         self.messages_queue.put("%s" % message)
-        message = {"type": "userdata", "data": self.client.name}
+        message = {"type": "userdata", "data": jsonpickle.encode(self.client)}
         self.messages_queue.put("%s" % message)
 
     def send_alert(self, alertmessage):

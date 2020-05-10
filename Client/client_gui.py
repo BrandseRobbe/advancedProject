@@ -26,6 +26,8 @@ dark = "#adceff"
 class Client(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
+        self.userData = None
+
         self.outcometypedata = None
         self.choicesBreedData = None
         self.choicesColorData = None
@@ -48,6 +50,15 @@ class Client(Tk):
             self.frames[f] = frame
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
         self.showFrame(Applicatie)
+
+    def logOut(self):
+        print("logout attempt")
+        if self.userData is not None:
+            # use was logged in => send logout
+            print(self.userData)
+            self.sendMessageToServer("LOGOUT_USER", jsonpickle.encode(self.userData))
+            self.userData = None
+        self.showFrame(Login)
 
     def showFrame(self, frame):
         frame = self.frames[frame]
@@ -73,6 +84,7 @@ class Client(Tk):
         message = {"type": messageType, "value": messageValue}
         self.in_out_server.write("%s \n" % json.dumps(message))
         self.in_out_server.flush()
+        print("just sent: %s" % message)
 
     def getserverresponse(self):
         print("starting response loop")
@@ -137,6 +149,7 @@ class Client(Tk):
             print("register succesfull")
             self.showFrame(Applicatie)
             # self.textError.set("")
+
         else:
             # self.textError.set("Register failed")
             print("register not gud")
@@ -190,7 +203,7 @@ class Navigation(Frame):
         self.buttonColor.place(relx=0.571428, rely=0.0, relheight=0.05, relwidth=0.142857)
         self.buttonAge = Button(self.frame, text="Search animal by Age", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Age))
         self.buttonAge.place(relx=0.714285, rely=0.0, relheight=0.05, relwidth=0.142857)
-        self.buttonLogin = Button(self.frame, text="Logout", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.showFrame(Login))
+        self.buttonLogin = Button(self.frame, text="Logout", bg=button, activebackground=pressed_button, borderwidth=0, command=lambda: self.controller.logOut())
         self.buttonLogin.place(relx=0.857142, rely=0.0, relheight=0.05, relwidth=0.142857)
 
     def navigation(self, tab):
@@ -406,7 +419,9 @@ class Login(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
+        self.createdom()
 
+    def createdom(self):
         frame = Frame(self, bg='#6bdbb2')
         frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -448,6 +463,7 @@ class Login(Frame):
             print("__ %s __" % password)
             if email != '' and password != '':
                 user = User(email=email, password=password, nickname="", name="")
+                self.controller.userData = user
                 jsonuser = jsonpickle.encode(user)
                 self.controller.sendMessageToServer("LOGIN_ATTEMPT", jsonuser)
             else:
@@ -526,6 +542,7 @@ class Register(Frame):
             if username != '' and password != '' and repeatpassword != '' and email != '' and nickname != '':
                 if password == repeatpassword:
                     user = User(email=email, password=password, nickname=nickname, name=username)
+                    self.controller.userData = user
                     jsonuser = jsonpickle.encode(user)
                     self.controller.sendMessageToServer("REGISTER_ATTEMPT", jsonuser)
                 else:

@@ -33,9 +33,13 @@ class AnimalShelterServer(threading.Thread):
         self.print_log_info_gui("START_SERVER")
 
     def close_server_socket(self):
-        self.print_log_info_gui("CLOSE_SERVER")
-        self.__is_connected = False
-        self.serversocket.close()
+        try:
+            self.print_log_info_gui("CLOSE_SERVER")
+            self.__is_connected = False
+            self.serversocket.close()
+        except Exception:
+            print("server stond nog uit")
+            exit()
 
     def run(self):
         print('def run exectuted')
