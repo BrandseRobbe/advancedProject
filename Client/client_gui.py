@@ -151,20 +151,11 @@ class Client(Tk):
         if allowed:
             print("register succesfull")
             self.showFrame(Applicatie)
-            # self.textError.set("")
-
-        else:
-            # self.textError.set("Register failed")
-            print("register not gud")
-            raise EXCEPTION
 
     def handleLogin(self, allowed):
         if allowed:
             self.showFrame(Applicatie)
-        else:
-            # self.textError.set("Register failed")
-            print("register not gud")
-            raise EXCEPTION
+
 
     def handleAlert(self, message):
         print("!!! %s !!!" % message)
@@ -419,6 +410,7 @@ class Outcome(Navigation):
 
 
 class Login(Frame):
+
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
@@ -461,20 +453,27 @@ class Login(Frame):
 
     def login(self):
         try:
+            self.textError.set("")
             email = self.email.get()
             password = self.password.get()
             print("__ %s __" % password)
             if email != '' and password != '':
-                user = User(email=email, password=password, nickname="", name="")
-                self.controller.userData = user
-                jsonuser = jsonpickle.encode(user)
-                self.controller.sendMessageToServer("LOGIN_ATTEMPT", jsonuser)
+                if User.isValidPassword(password):
+                    if User.isValidEmail(email):
+                        user = User(email=email, password=password, nickname="", name="")
+                        self.controller.userData = user
+                        jsonuser = jsonpickle.encode(user)
+                        self.controller.sendMessageToServer("LOGIN_ATTEMPT", jsonuser)
+                    else:
+                        self.textError.set("Invalid email format")
+                else:
+                    self.textError.set("Incorrect password")
             else:
                 self.textError.set("Please fill in all fields")
 
         except Exception as ex:
-            logging.error("Error: %s" % ex)
-            messagebox.showinfo("SignIn", "Something has gone wrong...")
+            self.textError.set("Login failed")
+
 
 
 class Register(Frame):
@@ -536,6 +535,7 @@ class Register(Frame):
 
     def register(self):
         try:
+            self.textError.set("")
             username = self.username.get()
             password = self.password.get()
             repeatpassword = self.repeatPassword.get()
@@ -544,10 +544,17 @@ class Register(Frame):
 
             if username != '' and password != '' and repeatpassword != '' and email != '' and nickname != '':
                 if password == repeatpassword:
-                    user = User(email=email, password=password, nickname=nickname, name=username)
-                    self.controller.userData = user
-                    jsonuser = jsonpickle.encode(user)
-                    self.controller.sendMessageToServer("REGISTER_ATTEMPT", jsonuser)
+                    if User.isValidPassword(password):
+                        if User.isValidEmail(email):
+
+                            user = User(email=email, password=password, nickname=nickname, name=username)
+                            self.controller.userData = user
+                            jsonuser = jsonpickle.encode(user)
+                            self.controller.sendMessageToServer("REGISTER_ATTEMPT", jsonuser)
+                        else:
+                            self.textError.set("Invalid email format")
+                    else:
+                        self.textError.set("Password is too weak")
                 else:
                     # Error handeling !!
                     self.textError.set("Passwords aren't the same")
@@ -556,8 +563,7 @@ class Register(Frame):
                 self.textError.set("Please fill in all the fields")
 
         except Exception as ex:
-            logging.error("Error: %s" % ex)
-            messagebox.showinfo("SignIn", "Something has gone wrong...")
+            self.textError.set("Email is already in use")
 
 
 logging.basicConfig(level=logging.INFO)

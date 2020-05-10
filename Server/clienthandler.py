@@ -212,6 +212,7 @@ class ClientHandler(threading.Thread):
         self.sendMessageToClient("LOGIN_RESPONSE", validuser)
         print("login: %s" % validuser)
 
+
     def logout_client(self, messagevalue):
         print("logging out")
         message = {"type": "removeUser", "data": messagevalue}
