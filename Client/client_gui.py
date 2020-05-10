@@ -188,7 +188,7 @@ class Client(Tk):
         return output
 
     # --- Closing window ---
-    def __del__(self):
+    def close_window(self):
         #user uitloggen
         print("close")
         self.sendMessageToServer("LOGOUT_USER", jsonpickle.encode(self.userData))
@@ -611,4 +611,12 @@ root.geometry("1000x800")
 root.attributes('-fullscreen', True)
 root.bind("<F11>", lambda event: root.attributes("-fullscreen", not root.attributes("-fullscreen")))
 root.bind("<Escape>", lambda event: root.attributes("-fullscreen", False))
+
+def on_closing():
+    if messagebox.askokcancel("Quit", "Do you want to quit?"):
+        root.close_window()
+        root.destroy()
+
+root.protocol("WM_DELETE_WINDOW", on_closing)
+
 root.mainloop()
