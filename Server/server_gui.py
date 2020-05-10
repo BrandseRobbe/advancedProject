@@ -104,9 +104,6 @@ class ServerWindow(Frame):
                 loop = False
         print("queue stop")
 
-    def getmostsearched(self):
-        pass
-
     def init_messages_queue(self):
         self.messages_queue = Queue()
         t = Thread(target=self.print_messsages_from_queue)
@@ -130,13 +127,37 @@ class ServerWindow(Frame):
         t = Thread(target=self.getmostsearchedwindow())
         t.start()
 
+    def getUserData(self):
+        selected = self.lstClients.get(ACTIVE)
+
+        if selected != "":
+            client = None
+            for user in self.loggedInUsers:
+                if user.name == selected:
+                    client = user
+                    break
+            if client is not None:
+                t = Thread(target=self.show_userdata, kwargs=dict(user=client))
+                t.start()
+
+    def show_userdata(self, user):
+        # self.server.send_alert()
+        root = Tk()
+        root.geometry("350x500")
+        gui_server = UserData(user, root)
+        # root.protocol("WM_DELETE_WINDOW", callback)
+        root.mainloop()
 
     def getmostsearchedwindow(self):
         root = Tk()
         root.geometry("1900x1080")
         gui_server = getmostsearchedWindow(self.server.getmostsearched, root)
         # root.protocol("WM_DELETE_WINDOW", callback)
+        root.attributes('-fullscreen', True)
+        root.bind("<F11>", lambda event: root.attributes("-fullscreen", not root.attributes("-fullscreen")))
+        root.bind("<Escape>", lambda event: root.attributes("-fullscreen", False))
         root.mainloop()
+
     def start_stop_server(self):
         print("serverstatus: %s" % self.server.is_connected)
         if self.server.is_connected:
@@ -146,6 +167,7 @@ class ServerWindow(Frame):
             self.server.init_server()
             self.server.start()
             self.btn_text.set("Stop server")
+
 
 class getmostsearchedWindow(Frame):
     def __init__(self, callback, master=None):
@@ -162,8 +184,6 @@ class getmostsearchedWindow(Frame):
         self.master.title("Get most searched")
         self.pack(fill=BOTH, expand=1)
 
-
-
     def getMostSearchedBreed(self):
         dataset = pd.read_csv("searches.csv")
         results = dataset[dataset['messagetype'] == "ANIMALBREED"]
@@ -177,7 +197,6 @@ class getmostsearchedWindow(Frame):
         plt.gcf().canvas.draw()
         histogram = FigureCanvasTkAgg(figureBreed, self)
         histogram.get_tk_widget().place(relx=0.05, rely=0.05, relheight=0.40, relwidth=0.40)
-
 
     def getMostSearchedAge(self):
         dataset = pd.read_csv("searches.csv")
@@ -221,6 +240,7 @@ class getmostsearchedWindow(Frame):
         histogram = FigureCanvasTkAgg(figureName, self)
         histogram.get_tk_widget().place(relx=0.55, rely=0.55, relheight=0.40, relwidth=0.40)
 
+
 class SendNotificationWindow(Frame):
     def __init__(self, callback, master=None):
         Frame.__init__(self, master)
@@ -242,18 +262,34 @@ class SendNotificationWindow(Frame):
 
 
 class UserData(Frame):
-    def __init__(self, username, master=None):
+    def __init__(self, user, master=None):
         Frame.__init__(self, master)
         self.master = master
-        self.username = username
+        self.user = user
         self.init_window()
 
     def init_window(self):
-        self.master.title(self.username)
+        self.master.title(self.user.name)
         self.pack(fill=BOTH, expand=1)
         dataset = pd.read_csv("searches.csv")
 
-        userdata = dataset[dataset['username'] == self.username]
+        df = dataset[dataset['username'] == self.user.name]
+        print(df)
 
-        print(results)
-        # Label(self, text=self.message).grid(row=0, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+        Label(self, text="Name: %s" % self.user.name, anchor=W, justify=LEFT).place(relx=0.05, rely=0.05, relwidth=0.60, relheight=0.07)
+        Label(self, text="Nickname: %s" % self.user.nickname, anchor=W, justify=LEFT).place(relx=0.05, rely=0.10, relwidth=0.60, relheight=0.07)
+        Label(self, text="Email: %s" % self.user.email, anchor=W, justify=LEFT).place(relx=0.05, rely=0.15, relwidth=0.60, relheight=0.07)
+        Label(self, text="Search history:", anchor=W, justify=LEFT).place(relx=0.05, rely=0.25, relwidth=0.60, relheight=0.07)
+
+        self.scrollbar = Scrollbar(self, orient=VERTICAL)
+        self.history = Listbox(self, yscrollcommand=self.scrollbar.set)
+        self.history.place(relx=0.05, rely=0.30, relwidth=0.90, relheight=0.75)
+
+        max_len = [int(df[col].str.len().max()) for col in df.columns]
+        print(max_len)
+        for row in df.values.tolist():
+            rowstring = ""
+            for cel in row:
+                rowstring += cel + " " * (max_len[row.index(cel)] - len(cel)) + " | "
+            print(rowstring[:-2])
+            self.history.insert(END, rowstring[:-2])
