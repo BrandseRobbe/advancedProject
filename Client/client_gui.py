@@ -189,12 +189,15 @@ class Client(Tk):
 
     # --- Closing window ---
     def close_window(self):
-        #user uitloggen
-        print("close")
-        self.sendMessageToServer("LOGOUT_USER", jsonpickle.encode(self.userData))
-        self.in_out_server.write("CLOSE\n")
-        self.in_out_server.flush()
-        self.close_connection()
+        try:
+            #user uitloggen
+            print("close")
+            self.sendMessageToServer("LOGOUT_USER", jsonpickle.encode(self.userData))
+            self.in_out_server.write("CLOSE\n")
+            self.in_out_server.flush()
+            self.close_connection()
+        except EXCEPTION:
+            print("Verbinding was al verbroken")
 
 
 class Navigation(Frame):

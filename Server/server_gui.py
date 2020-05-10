@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 from server import AnimalShelterServer
 
 import matplotlib
+
 matplotlib.use('Agg')
 
 
@@ -126,8 +127,9 @@ class ServerWindow(Frame):
 
     def getmostsearched(self):
         print("Getting most searched")
-        t = Thread(target=self.getmostsearchedwindow)
-        t.start()
+        # t = Thread(target=self.getmostsearchedwindow)
+        # t.start()
+        self.getmostsearchedwindow()
 
     def getUserData(self):
         selected = self.lstClients.get(ACTIVE)
@@ -139,26 +141,33 @@ class ServerWindow(Frame):
                     client = user
                     break
             if client is not None:
-                t = Thread(target=self.show_userdata, kwargs=dict(user=client))
-                t.start()
+                # t = Thread(target=self.show_userdata, kwargs=dict(user=client))
+                # t.start()
+                self.show_userdata(client)
+
+    def deleteuserwindow(self):
+        self.rootuserdata.destroy()
 
     def show_userdata(self, user):
         # self.server.send_alert()
-        root = Tk()
-        root.geometry("350x500")
-        gui_server = UserData(user, root)
-        # root.protocol("WM_DELETE_WINDOW", callback)
-        root.mainloop()
+        self.rootuserdata = Tk()
+        self.rootuserdata.geometry("350x500")
+        gui_server = UserData(user, self.rootuserdata)
+        # self.rootuserdata.protocol("WM_DELETE_WINDOW", self.deletesearcwindow)
+        self.rootuserdata.mainloop()
+
+    def deletesearcwindow(self):
+        self.rootsearch.destroy()
 
     def getmostsearchedwindow(self):
-        root = Tk()
-        root.geometry("1900x1080")
-        gui_server = getmostsearchedWindow(self.server.getmostsearched, root)
-        # root.protocol("WM_DELETE_WINDOW", callback)
-        root.attributes('-fullscreen', True)
-        root.bind("<F11>", lambda event: root.attributes("-fullscreen", not root.attributes("-fullscreen")))
-        root.bind("<Escape>", lambda event: root.attributes("-fullscreen", False))
-        root.mainloop()
+        self.rootsearch = Tk()
+        self.rootsearch.geometry("1900x1080")
+        gui_server = getmostsearchedWindow(self.server.getmostsearched, self.rootsearch)
+        # self.rootsearch.protocol("WM_DELETE_WINDOW", self.deletesearcwindow)
+        self.rootsearch.attributes('-fullscreen', True)
+        self.rootsearch.bind("<F11>", lambda event: self.rootsearch.attributes("-fullscreen", not self.rootsearch.attributes("-fullscreen")))
+        self.rootsearch.bind("<Escape>", lambda event: self.rootsearch.attributes("-fullscreen", False))
+        self.rootsearch.mainloop()
 
     def start_stop_server(self):
         print("serverstatus: %s" % self.server.is_connected)
