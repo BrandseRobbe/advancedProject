@@ -46,7 +46,7 @@ class ServerWindow(Frame):
         self.mostsearched_text.set("View most searched searches")
         self.buttonServer = Button(self, textvariable=self.btn_text, command=self.start_stop_server)
         self.gegevens = Button(self, textvariable=self.gegevens_text)
-        self.mostsearched = Button(self, textvariable=self.mostsearched_text)
+        self.mostsearched = Button(self, textvariable=self.mostsearched_text, command=self.getmostsearched)
         self.sendalert = Button(self, textvariable=self.alert_text, command=self.send_alert)
         self.gegevens.grid(row=4, column=1, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
         self.mostsearched.grid(row=4, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
@@ -98,6 +98,9 @@ class ServerWindow(Frame):
             elif messageType == "stop_message":
                 loop = False
         print("queue stop")
+
+    def getmostsearched(self):
+        pass
 
     def init_messages_queue(self):
         self.messages_queue = Queue()

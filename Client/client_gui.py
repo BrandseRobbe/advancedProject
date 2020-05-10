@@ -49,7 +49,7 @@ class Client(Tk):
             frame = f(container, self)
             self.frames[f] = frame
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self.showFrame(Applicatie)
+        self.showFrame(Login)
 
     def logOut(self):
         print("logout attempt")

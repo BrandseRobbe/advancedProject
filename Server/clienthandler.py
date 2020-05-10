@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import json
 
-
 class ClientHandler(threading.Thread):
     numbers_clienthandlers = 0
 
@@ -48,15 +47,19 @@ class ClientHandler(threading.Thread):
                 self.get_age_dropdown()
 
             elif messagetype == "ANIMALBREED":
+                self.addToSearches(messagetype, messagevalue)
                 self.get_animal_by_breed(messagevalue)
 
             elif messagetype == "ANIMALCOLOR":
+                self.addToSearches(messagetype, messagevalue)
                 self.get_animal_by_color(messagevalue)
 
             elif messagetype == "ANIMALAGE":
+                self.addToSearches(messagetype, messagevalue)
                 self.get_animal_by_age(messagevalue)
 
             elif messagetype == "ANIMALNAME":
+                self.addToSearches(messagetype, messagevalue)
                 self.get_animal_by_name(messagevalue)
 
             elif messagetype == "REGISTER_ATTEMPT":
@@ -72,6 +75,19 @@ class ClientHandler(threading.Thread):
         self.messages_queue.put("%s" % message)
         self.is_connected = False
         self.socketclient.close()
+
+    def getClientSearches(self, client):
+        dataset = pd.read_csv("searches.csv")
+        results = dataset.loc[dataset['username'] == client]
+        return results
+
+    def getMostSearched(self):
+        pass
+
+    def addToSearches(self, messagetype, messagevalue):
+        columns = ['messagetype', 'messagevalue', 'username']
+        newsearch = pd.DataFrame([[messagetype, messagevalue, self.client.name]], columns=columns)
+        newsearch.to_csv('searches.csv', mode='a', header=False)
 
     def sendMessageToClient(self, messageType, messageValue):
         message = {"type": messageType, "value": messageValue}
