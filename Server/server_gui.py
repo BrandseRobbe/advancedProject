@@ -182,7 +182,7 @@ class getmostsearchedWindow(Frame):
         results = results[results['messagevalue'].isin(mostsearched)]
 
         figureAge = plt.figure(figsize=(6, 6))
-        plt.title("Get Most Searched Breed")
+        plt.title("Get Most Searched Age")
         plt.hist(results["messagevalue"])
         # figureOutcome.autofmt_xdate(rotation=90)
         plt.gcf().canvas.draw()
@@ -196,7 +196,7 @@ class getmostsearchedWindow(Frame):
         results = results[results['messagevalue'].isin(mostsearched)]
 
         figureColor = plt.figure(figsize=(6, 6))
-        plt.title("Get Most Searched Breed")
+        plt.title("Get Most Searched Color")
         plt.hist(results["messagevalue"])
         # figureOutcome.autofmt_xdate(rotation=90)
         plt.gcf().canvas.draw()
@@ -210,7 +210,7 @@ class getmostsearchedWindow(Frame):
         results = results[results['messagevalue'].isin(mostsearched)]
 
         figureName = plt.figure(figsize=(6, 6))
-        plt.title("Get Most Searched Breed")
+        plt.title("Get Most Searched Name")
         plt.hist(results["messagevalue"])
         # figureOutcome.autofmt_xdate(rotation=90)
         plt.gcf().canvas.draw()
