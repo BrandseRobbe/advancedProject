@@ -68,6 +68,10 @@ class AnimalShelterServer(threading.Thread):
             if clh.is_connected == True:
                 clh.send_alert(alertmessage)
 
+    def getmostsearched(self):
+        print("Getting most searched")
+
+
     def print_user_info_gui(self, info):
         print(info)
         print("user connected")

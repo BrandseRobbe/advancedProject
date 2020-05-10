@@ -76,14 +76,6 @@ class ClientHandler(threading.Thread):
         self.is_connected = False
         self.socketclient.close()
 
-    def getClientSearches(self, client):
-        dataset = pd.read_csv("searches.csv")
-        results = dataset.loc[dataset['username'] == client]
-        return results
-
-    def getMostSearched(self):
-        pass
-
     def addToSearches(self, messagetype, messagevalue):
         columns = ['messagetype', 'messagevalue', 'username']
         newsearch = pd.DataFrame([[messagetype, messagevalue, self.client.name]], columns=columns)
