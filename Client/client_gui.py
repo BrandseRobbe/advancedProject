@@ -19,7 +19,7 @@ import pandas as pd
 textcolor = "#00008b"
 inputcolor = "#f0f6ff"
 light = "#f0f6ff"
-framecolor ="#e0edff"
+framecolor = "#e0edff"
 button = "#d6e7ff"
 button_active = "#b3d2ff"
 pressed_button = "#b3d2ff"
@@ -156,9 +156,18 @@ class Client(Tk):
         if allowed:
             self.showFrame(Applicatie)
 
-
     def handleAlert(self, message):
         print("!!! %s !!!" % message)
+        t = Thread(target=self.show_alert_window, kwargs=dict(message=message))
+        t.start()
+
+    def show_alert_window(self, message):
+        print(message)
+        root = Tk()
+        # root.geometry("300x100")
+        gui_alert = AlertWindow(message, root)
+        # root.protocol("WM_DELETE_WINDOW", callback)
+        root.mainloop()
 
     def close_connection(self):
         try:
@@ -460,7 +469,7 @@ class Login(Frame):
         login = Button(card, text='SIGN IN', fg=textcolor, bg=dark, bd=0, activebackground=button_active, activeforeground=textcolor, command=lambda: self.login())
         login.place(relx=0.1, rely=0.70, relwidth=0.8, relheight=0.08)
 
-        register = Button(card, text='Create an account', fg='black', bg=framecolor, activebackground=framecolor ,bd=0, command=lambda: self.goToRegister())
+        register = Button(card, text='Create an account', fg='black', bg=framecolor, activebackground=framecolor, bd=0, command=lambda: self.goToRegister())
         register.place(relx=0.1, rely=0.90, relwidth=0.8, relheight=0.08)
 
     def goToRegister(self):
@@ -489,7 +498,6 @@ class Login(Frame):
 
         except Exception as ex:
             self.textError.set("Login failed")
-
 
 
 class Register(Frame):
@@ -531,7 +539,7 @@ class Register(Frame):
 
         repeatPassword_lbl = Label(card, text='Repeat Password', bg=framecolor, fg=textcolor, anchor="w")
         repeatPassword_lbl.place(relx=0.525, rely=0.70, relwidth=0.3, relheight=0.0266)
-        self.repeatPassword = Entry(card, fg=textcolor, bg= inputcolor, bd=0, selectbackground='#6c64d3', show="*")
+        self.repeatPassword = Entry(card, fg=textcolor, bg=inputcolor, bd=0, selectbackground='#6c64d3', show="*")
         self.repeatPassword.place(relx=0.525, rely=0.75, relwidth=0.375, relheight=0.08)
 
         self.textError = StringVar()
@@ -580,6 +588,19 @@ class Register(Frame):
 
         except Exception as ex:
             self.textError.set("Email is already in use")
+
+
+class AlertWindow(Frame):
+    def __init__(self, message, master=None):
+        Frame.__init__(self, master)
+        self.master = master
+        self.message = message
+        self.init_window()
+
+    def init_window(self):
+        self.master.title("Alert!")
+        self.pack(fill=BOTH, expand=1)
+        Label(self, text=self.message).grid(row=0, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
 
 
 logging.basicConfig(level=logging.INFO)
