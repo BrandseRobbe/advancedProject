@@ -7,6 +7,7 @@ from threading import Thread
 from tkinter import *
 
 import jsonpickle
+import pandas as pd
 
 from server import AnimalShelterServer
 
@@ -41,16 +42,16 @@ class ServerWindow(Frame):
         self.alert_text = StringVar()
         self.alert_text.set("Send alert to all online users")
         self.gegevens_text = StringVar()
-        self.gegevens_text.set("Get data from all users")
+        self.gegevens_text.set("Get data from user")
         self.mostsearched_text = StringVar()
         self.mostsearched_text.set("View most searched searches")
         self.buttonServer = Button(self, textvariable=self.btn_text, command=self.start_stop_server)
-        self.gegevens = Button(self, textvariable=self.gegevens_text)
+        self.gegevens = Button(self, textvariable=self.gegevens_text, command=self.getUserData)
         self.mostsearched = Button(self, textvariable=self.mostsearched_text, command=self.getmostsearched)
         self.sendalert = Button(self, textvariable=self.alert_text, command=self.send_alert)
-        self.gegevens.grid(row=4, column=1, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+        self.sendalert.grid(row=4, column=1, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
         self.mostsearched.grid(row=4, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
-        self.sendalert.grid(row=3, column=1, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+        self.gegevens.grid(row=3, column=1, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
         self.buttonServer.grid(row=3, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
         Grid.rowconfigure(self, 1, weight=1)
         Grid.columnconfigure(self, 0, weight=1)
@@ -102,6 +103,19 @@ class ServerWindow(Frame):
     def getmostsearched(self):
         pass
 
+    def getUserData(self):
+        selected = self.lstClients.get(ACTIVE)
+        selected = "ya boiiiii"
+        if selected != "":
+            t = Thread(target=self.show_userdata, kwargs=dict(username=selected))
+            t.start()
+    def show_userdata(self, username):
+        root = Tk()
+        root.geometry("600x800")
+        UserData(username, root)
+        # root.protocol("WM_DELETE_WINDOW", callback)
+        root.mainloop()
+
     def init_messages_queue(self):
         self.messages_queue = Queue()
         t = Thread(target=self.print_messsages_from_queue)
@@ -144,8 +158,26 @@ class SendNotificationWindow(Frame):
         Label(self, text="Send alert to all online users: ").grid(row=0, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
         self.alertInput = Entry(self, text="testtext")
         self.alertInput.grid(row=1, column=0)
-        Button(self, text="Send all online users", command=lambda: self.sendAlert()).grid(row=2, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+        Button(self, text="Send to all online users", command=lambda: self.sendAlert()).grid(row=2, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
 
     def sendAlert(self):
         self.callback(self.alertInput.get())
         self.master.destroy()
+
+
+class UserData(Frame):
+    def __init__(self, username, master=None):
+        Frame.__init__(self, master)
+        self.master = master
+        self.username = username
+        self.init_window()
+
+    def init_window(self):
+        self.master.title(self.username)
+        self.pack(fill=BOTH, expand=1)
+        dataset = pd.read_csv("searches.csv")
+
+        userdata = dataset[dataset['username'] == self.username]
+
+        print(results)
+        # Label(self, text=self.message).grid(row=0, column=0, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
