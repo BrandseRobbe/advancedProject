@@ -189,6 +189,9 @@ class Client(Tk):
 
     # --- Closing window ---
     def __del__(self):
+        #user uitloggen
+        print("close")
+        self.sendMessageToServer("LOGOUT_USER", jsonpickle.encode(self.userData))
         self.in_out_server.write("CLOSE\n")
         self.in_out_server.flush()
         self.close_connection()
@@ -604,5 +607,8 @@ class AlertWindow(Frame):
 
 logging.basicConfig(level=logging.INFO)
 root = Client()
-root.geometry("1900x1080")
+root.geometry("1000x800")
+root.attributes('-fullscreen', True)
+root.bind("<F11>", lambda event: root.attributes("-fullscreen", not root.attributes("-fullscreen")))
+root.bind("<Escape>", lambda event: root.attributes("-fullscreen", False))
 root.mainloop()
