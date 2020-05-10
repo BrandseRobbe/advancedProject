@@ -1,13 +1,19 @@
 from tkinter import *
 
 from server_gui import ServerWindow
-
+import os
 
 def callback():
     print("callback")
-    gui_server.afsluiten_server()
-    root.destroy()
-
+    try:
+        gui_server.afsluiten_server()
+    except EXCEPTION:
+        print('Nog niet opgestart')
+    finally:
+        print("destroy")
+        root.destroy()
+        print("destroy")
+        os._exit(0)
 
 root = Tk()
 root.geometry("600x300")
