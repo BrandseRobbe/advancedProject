@@ -16,7 +16,10 @@ import time
 from csv import reader
 import pandas as pd
 
+textcolor = "#00008b"
+inputcolor = "#f0f6ff"
 light = "#f0f6ff"
+framecolor ="#e0edff"
 button = "#d6e7ff"
 button_active = "#b3d2ff"
 pressed_button = "#b3d2ff"
@@ -148,20 +151,11 @@ class Client(Tk):
         if allowed:
             print("register succesfull")
             self.showFrame(Applicatie)
-            # self.textError.set("")
-
-        else:
-            # self.textError.set("Register failed")
-            print("register not gud")
-            raise EXCEPTION
 
     def handleLogin(self, allowed):
         if allowed:
             self.showFrame(Applicatie)
-        else:
-            # self.textError.set("Register failed")
-            print("register not gud")
-            raise EXCEPTION
+
 
     def handleAlert(self, message):
         print("!!! %s !!!" % message)
@@ -432,40 +426,41 @@ class Outcome(Navigation):
 
 
 class Login(Frame):
+
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
         self.createdom()
 
     def createdom(self):
-        frame = Frame(self, bg='#6bdbb2')
+        frame = Frame(self, bg=light)
         frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        card = Frame(frame, bg='#31ad80')
+        card = Frame(frame, bg=framecolor)
         card.place(relx=0.2, rely=0.1, relwidth=0.6, relheight=0.8)
 
-        title = Label(card, text='SIGN IN', bg='#31ad80', fg='white')
+        title = Label(card, text='SIGN IN', bg=framecolor, fg=textcolor)
         title.place(relx=0.1, rely=0.08, relwidth=0.8)
 
-        email_lbl = Label(card, text='Email', bg='#31ad80', fg='white', anchor="w")
+        email_lbl = Label(card, text='Email', bg=framecolor, fg=textcolor, anchor="w")
         email_lbl.place(relx=0.1, rely=0.25, relwidth=0.8, relheight=0.0266)
-        self.email = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
+        self.email = Entry(card, fg=textcolor, bg=inputcolor, bd=0, selectbackground='#6c64d3')
         self.email.place(relx=0.1, rely=0.30, relwidth=0.8, relheight=0.08)
 
-        password_lbl = Label(card, text='Password', bg='#31ad80', fg='white', anchor="w")
+        password_lbl = Label(card, text='Password', bg=framecolor, fg=textcolor, anchor="w")
         password_lbl.place(relx=0.1, rely=0.45, relwidth=0.8, relheight=0.0266)
-        self.password = Entry(card, text='Login', fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3', show="*")
+        self.password = Entry(card, text='Login', fg=textcolor, bg=inputcolor, bd=0, selectbackground='#6c64d3', show="*")
         self.password.place(relx=0.1, rely=0.50, relwidth=0.8, relheight=0.08)
 
         self.textError = StringVar()
         self.textError.set("")
-        error = Label(card, textvariable=self.textError, bg='#31ad80', fg='white')
+        error = Label(card, textvariable=self.textError, bg=framecolor, fg=textcolor)
         error.place(relx=0.1, rely=0.60, relwidth=0.8, relheight=0.1)
 
-        login = Button(card, text='SIGN IN', fg='white', bg='#018555', bd=0, activebackground='#016943', activeforeground='white', command=lambda: self.login())
+        login = Button(card, text='SIGN IN', fg=textcolor, bg=dark, bd=0, activebackground=button_active, activeforeground=textcolor, command=lambda: self.login())
         login.place(relx=0.1, rely=0.70, relwidth=0.8, relheight=0.08)
 
-        register = Button(card, text='Create an account', fg='white', bg='#31ad80', bd=0, command=lambda: self.goToRegister())
+        register = Button(card, text='Create an account', fg='black', bg=framecolor, activebackground=framecolor ,bd=0, command=lambda: self.goToRegister())
         register.place(relx=0.1, rely=0.90, relwidth=0.8, relheight=0.08)
 
     def goToRegister(self):
@@ -474,20 +469,27 @@ class Login(Frame):
 
     def login(self):
         try:
+            self.textError.set("")
             email = self.email.get()
             password = self.password.get()
             print("__ %s __" % password)
             if email != '' and password != '':
-                user = User(email=email, password=password, nickname="", name="")
-                self.controller.userData = user
-                jsonuser = jsonpickle.encode(user)
-                self.controller.sendMessageToServer("LOGIN_ATTEMPT", jsonuser)
+                if User.isValidPassword(password):
+                    if User.isValidEmail(email):
+                        user = User(email=email, password=password, nickname="", name="")
+                        self.controller.userData = user
+                        jsonuser = jsonpickle.encode(user)
+                        self.controller.sendMessageToServer("LOGIN_ATTEMPT", jsonuser)
+                    else:
+                        self.textError.set("Invalid email format")
+                else:
+                    self.textError.set("Incorrect password")
             else:
                 self.textError.set("Please fill in all fields")
 
         except Exception as ex:
-            logging.error("Error: %s" % ex)
-            messagebox.showinfo("SignIn", "Something has gone wrong...")
+            self.textError.set("Login failed")
+
 
 
 class Register(Frame):
@@ -498,49 +500,49 @@ class Register(Frame):
 
     def createdom(self):
 
-        frame = Frame(self, bg='#6bdbb2')
+        frame = Frame(self, bg=light)
         frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        card = Frame(frame, bg='#31ad80')
+        card = Frame(frame, bg=framecolor)
         card.place(relx=0.2, rely=0.1, relwidth=0.6, relheight=0.8)
 
-        title = Label(card, text='REGISTER', bg='#31ad80', fg='white')
+        title = Label(card, text='REGISTER', bg=framecolor, fg=textcolor)
         title.place(relx=0.1, rely=0.05, relwidth=0.8)
 
-        username_lbl = Label(card, text='Username', bg='#31ad80', fg='white', anchor="w")
+        username_lbl = Label(card, text='Username', bg=framecolor, fg=textcolor, anchor="w")
         username_lbl.place(relx=0.1, rely=0.10, relwidth=0.8, relheight=0.0266)
-        self.username = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
+        self.username = Entry(card, fg=textcolor, bg=inputcolor, bd=0, selectbackground='#6c64d3')
         self.username.place(relx=0.1, rely=0.15, relwidth=0.8, relheight=0.08)
 
-        email_lbl = Label(card, text='Email', bg='#31ad80', fg='white', anchor="w")
+        email_lbl = Label(card, text='Email', bg=framecolor, fg=textcolor, anchor="w")
         email_lbl.place(relx=0.1, rely=0.30, relwidth=0.8, relheight=0.0266)
-        self.email = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
+        self.email = Entry(card, fg=textcolor, bg=inputcolor, bd=0, selectbackground='#6c64d3')
         self.email.place(relx=0.1, rely=0.35, relwidth=0.8, relheight=0.08)
 
-        nickname_lbl = Label(card, text='Nickname', bg='#31ad80', fg='white', anchor="w")
+        nickname_lbl = Label(card, text='Nickname', bg=framecolor, fg=textcolor, anchor="w")
         nickname_lbl.place(relx=0.1, rely=0.50, relwidth=0.8, relheight=0.0266)
-        self.nickname = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3')
+        self.nickname = Entry(card, fg=textcolor, bg=inputcolor, bd=0, selectbackground='#6c64d3')
         self.nickname.place(relx=0.1, rely=0.55, relwidth=0.8, relheight=0.08)
 
-        password_lbl = Label(card, text='Password', bg='#31ad80', fg='white', anchor="w")
+        password_lbl = Label(card, text='Password', bg=framecolor, fg=textcolor, anchor="w")
         password_lbl.place(relx=0.1, rely=0.70, relwidth=0.3, relheight=0.0266)
-        self.password = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3', show="*")
+        self.password = Entry(card, fg=textcolor, bg=inputcolor, bd=0, selectbackground='#6c64d3', show="*")
         self.password.place(relx=0.1, rely=0.75, relwidth=0.375, relheight=0.08)
 
-        repeatPassword_lbl = Label(card, text='Repeat Password', bg='#31ad80', fg='white', anchor="w")
+        repeatPassword_lbl = Label(card, text='Repeat Password', bg=framecolor, fg=textcolor, anchor="w")
         repeatPassword_lbl.place(relx=0.525, rely=0.70, relwidth=0.3, relheight=0.0266)
-        self.repeatPassword = Entry(card, fg='black', bg='#D4D4D4', bd=0, selectbackground='#6c64d3', show="*")
+        self.repeatPassword = Entry(card, fg=textcolor, bg= inputcolor, bd=0, selectbackground='#6c64d3', show="*")
         self.repeatPassword.place(relx=0.525, rely=0.75, relwidth=0.375, relheight=0.08)
 
         self.textError = StringVar()
         self.textError.set("")
-        error = Label(card, textvariable=self.textError, bg='#31ad80', fg='white')
+        error = Label(card, textvariable=self.textError, bg=framecolor, fg=textcolor)
         error.place(relx=0.1, rely=0.83, relwidth=0.8, relheight=0.1)
 
-        login = Button(card, text='Login', fg='white', bg='#31ad80', bd=0, command=lambda: self.goToLogin())
+        login = Button(card, text='Login', fg=textcolor, bg=framecolor, activebackground=framecolor, bd=0, command=lambda: self.goToLogin())
         login.place(relx=0.1, rely=0.90, relwidth=0.375, relheight=0.08)
 
-        register = Button(card, text='SIGN UP', fg='white', bg='#018555', bd=0, activebackground='#016943', activeforeground='white', command=lambda: self.register())
+        register = Button(card, text='SIGN UP', fg=textcolor, bg=dark, bd=0, activebackground=button_active, activeforeground=textcolor, command=lambda: self.register())
         register.place(relx=0.525, rely=0.90, relwidth=0.375, relheight=0.08)
 
     def goToLogin(self):
@@ -549,6 +551,7 @@ class Register(Frame):
 
     def register(self):
         try:
+            self.textError.set("")
             username = self.username.get()
             password = self.password.get()
             repeatpassword = self.repeatPassword.get()
@@ -557,10 +560,17 @@ class Register(Frame):
 
             if username != '' and password != '' and repeatpassword != '' and email != '' and nickname != '':
                 if password == repeatpassword:
-                    user = User(email=email, password=password, nickname=nickname, name=username)
-                    self.controller.userData = user
-                    jsonuser = jsonpickle.encode(user)
-                    self.controller.sendMessageToServer("REGISTER_ATTEMPT", jsonuser)
+                    if User.isValidPassword(password):
+                        if User.isValidEmail(email):
+
+                            user = User(email=email, password=password, nickname=nickname, name=username)
+                            self.controller.userData = user
+                            jsonuser = jsonpickle.encode(user)
+                            self.controller.sendMessageToServer("REGISTER_ATTEMPT", jsonuser)
+                        else:
+                            self.textError.set("Invalid email format")
+                    else:
+                        self.textError.set("Password is too weak")
                 else:
                     # Error handeling !!
                     self.textError.set("Passwords aren't the same")
@@ -569,8 +579,7 @@ class Register(Frame):
                 self.textError.set("Please fill in all the fields")
 
         except Exception as ex:
-            logging.error("Error: %s" % ex)
-            messagebox.showinfo("SignIn", "Something has gone wrong...")
+            self.textError.set("Email is already in use")
 
 
 logging.basicConfig(level=logging.INFO)
