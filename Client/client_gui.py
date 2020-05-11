@@ -151,10 +151,15 @@ class Client(Tk):
         if allowed:
             print("register succesfull")
             self.showFrame(Applicatie)
+        else:
+            self.frames[Register].textError.set("Email is already in use")
+
 
     def handleLogin(self, allowed):
         if allowed:
             self.showFrame(Applicatie)
+        else:
+            self.frames[Login].textError.set("Couldn't find matching Email and password")
 
     def handleAlert(self, message):
         print("!!! %s !!!" % message)
