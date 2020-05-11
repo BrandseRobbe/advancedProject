@@ -164,7 +164,7 @@ class ServerWindow(Frame):
         self.rootsearch.geometry("1900x1080")
         gui_server = getmostsearchedWindow(self.server.getmostsearched, self.rootsearch)
         # self.rootsearch.protocol("WM_DELETE_WINDOW", self.deletesearcwindow)
-        self.rootsearch.attributes('-fullscreen', True)
+        self.rootsearch.state("zoomed")
         self.rootsearch.bind("<F11>", lambda event: self.rootsearch.attributes("-fullscreen", not self.rootsearch.attributes("-fullscreen")))
         self.rootsearch.bind("<Escape>", lambda event: self.rootsearch.attributes("-fullscreen", False))
         self.rootsearch.mainloop()
